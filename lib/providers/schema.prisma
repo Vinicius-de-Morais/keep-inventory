@@ -1,0 +1,10 @@
+
+
+generator client {
+  provider = "dart run orm"
+}
+
+datasource db { 
+  provider = "postgresql"
+  url      = "postgresql://johndoe:mypassword@localhost:5432/mydb?schema=public"
+} 
