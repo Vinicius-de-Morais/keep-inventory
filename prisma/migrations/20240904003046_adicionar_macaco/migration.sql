@@ -1,0 +1,5 @@
+-- CreateTable
+CREATE TABLE "Macaco" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "cor" TEXT NOT NULL
+);
