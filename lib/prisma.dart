@@ -1,9 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:orm_flutter/orm_flutter.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 
-import 'prisma/generated_dart_client/client.dart';
+import 'package:prisma/generated_dart_client/prisma.dart';
 
 late final PrismaClient prisma;
 

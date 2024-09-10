@@ -1099,7 +1099,7 @@ class PrismaClient extends _i1.BasePrismaClient<PrismaClient> {
   @override
   get $engine => _engine ??= _i5.LibraryEngine(
         schema:
-            'generator client {\n  provider   = "dart run orm"\n  engineType = "flutter"\n}\n\ndatasource db {\n  provider = "sqlite"\n  url      = "file:./dev.db"\n}\n\nmodel User {\n  id    Int     @id @default(autoincrement())\n  email String  @unique\n  name  String?\n}\n\nmodel Macaco {\n  id  Int    @id @default(autoincrement())\n  cor String\n}\n',
+            'generator client {\n  provider   = "dart run orm"\n  output     = "../lib/_generated_prisma_client"\n  engineType = "flutter"\n}\n\ndatasource db {\n  provider = "sqlite"\n  url      = "file:./dev.db"\n}\n\nmodel User {\n  id    Int     @id @default(autoincrement())\n  email String  @unique\n  name  String?\n}\n\nmodel Macaco {\n  id  Int    @id @default(autoincrement())\n  cor String\n}\n',
         datasources: const {
           'db': _i1.Datasource(
             _i1.DatasourceType.url,
