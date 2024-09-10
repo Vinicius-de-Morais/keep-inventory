@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:keep_inventory/widgets/loginForm.dart';
 
-void main() {
+import '_generated_prisma_client/model.dart';
+import '_generated_prisma_client/prisma.dart';
+import 'prisma.dart';
+
+Future<void> main() async {
+  await initPrismaClient();
+
   runApp(const MyApp());
 }
 

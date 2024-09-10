@@ -9,13 +9,72 @@ datasource db {
   url      = "file:./dev.db"
 } 
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+model Account {
+  id          Int              @id @unique @default(autoincrement())
+  name        String
+  user_name   String
+  description String?
+  products    Product[]
+  categories  ProductCategory[]
 }
-
-model Macaco {
-  id    Int     @id @default(autoincrement())
-  cor String 
+ 
+model Product {
+  id                Int              @id @unique @default(autoincrement())
+  account_id        Int
+  description       String?
+  product_category_id Int?
+  name              String
+  barcode_content   String?
+  account           Account          @relation(fields: [account_id], references: [id])
+  category          ProductCategory? @relation(fields: [product_category_id], references: [id])
+  lotes             Lote[]
+ 
+  @@index([account_id])
+  @@index([product_category_id])
+}
+ 
+model ProductCategory {
+  id             Int              @id @unique @default(autoincrement())
+  parent_category Int?
+  account_id     Int
+  name           String?
+  description    String?
+  account        Account          @relation(fields: [account_id], references: [id])
+  parent         ProductCategory? @relation("ParentCategory", fields: [parent_category], references: [id])
+  children       ProductCategory[] @relation("ParentCategory")
+  products       Product[]
+ 
+  @@index([account_id])
+  @@index([parent_category])
+}
+ 
+model Lote {
+  id               Int              @id @unique @default(autoincrement())
+  product_id       Int
+  quantity_minimum Int
+  quantity_current Int
+  expiration_date  DateTime?
+  creation_date    DateTime         @default(now())
+  purchase_price   Float?
+  product          Product          @relation(fields: [product_id], references: [id])
+  lote_updates     LoteUpdates[]
+  shopping_list    ShoppingList?
+ 
+  @@index([product_id])
+}
+ 
+model LoteUpdates {
+  id            Int      @id @unique @default(autoincrement())
+  stock_id      Int
+  update_time   DateTime @default(now())
+  quantity_delta Int
+  lote          Lote     @relation(fields: [stock_id], references: [id])
+ 
+  @@index([stock_id])
+}
+ 
+model ShoppingList {
+  stock_id Int  @id @unique
+  count    Int?
+  lote     Lote @relation(fields: [stock_id], references: [id])
 }
