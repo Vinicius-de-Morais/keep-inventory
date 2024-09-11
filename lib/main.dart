@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:keep_inventory/services/account_controller.dart';
+import 'package:keep_inventory/widgets/account_register_form.dart';
 import 'package:keep_inventory/widgets/loginForm.dart';
 
 import '_generated_prisma_client/model.dart';
@@ -56,9 +59,6 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
@@ -70,10 +70,17 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+          onPressed: () => {
+                Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                      builder: (context) => AccountRegisterForm(
+                          accountController: AccountController(prisma))),
+                )
+              },
+          tooltip: 'criar conta',
+          child: const Text("Criar conta") //const Icon(Icons.add),
+          ),
     );
   }
 }
