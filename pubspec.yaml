@@ -63,7 +63,9 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - prisma/migrations/ # Migrations root dir
-    - prisma/migrations/20240904002533_fodase/ # Migrations root dir
+    - prisma/migrations/20240904002533_fodase/ 
+    - prisma/migrations/20240904003046_adicionar_macaco/
+    - prisma/migrations/20240910223031_corrigir_db/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

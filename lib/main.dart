@@ -9,7 +9,7 @@ import '_generated_prisma_client/prisma.dart';
 import 'prisma.dart';
 
 Future<void> main() async {
-  await initPrismaClient();
+  initPrismaClient();
 
   runApp(const MyApp());
 }
@@ -50,6 +50,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    prisma.account.findMany().then((value) {
+      print(value);
+    });
+
+    AccountController accountController = AccountController(prisma);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -75,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   context,
                   CupertinoPageRoute(
                       builder: (context) => AccountRegisterForm(
-                          accountController: AccountController(prisma))),
+                          accountController: accountController)),
                 )
               },
           tooltip: 'criar conta',
