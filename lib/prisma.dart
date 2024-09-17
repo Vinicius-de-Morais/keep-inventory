@@ -5,7 +5,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '_generated_prisma_client/client.dart';
 
-late final PrismaClient prisma;
+late PrismaClient prisma;
 
 Future<void> initPrismaClient() async {
   WidgetsFlutterBinding.ensureInitialized();

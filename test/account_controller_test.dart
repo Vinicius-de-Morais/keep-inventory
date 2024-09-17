@@ -22,7 +22,7 @@ void main() async {
 
   test('account is created', () async {
     await initPrismaClient();
-    AccountController accountController = AccountController(prisma);
+    AccountController accountController = AccountController();
 
     final account = await accountController.createAccount(
         "test_name", "test_username", "test_description");

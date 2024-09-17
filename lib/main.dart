@@ -9,9 +9,10 @@ import '_generated_prisma_client/prisma.dart';
 import 'prisma.dart';
 
 Future<void> main() async {
-  initPrismaClient();
-
-  runApp(const MyApp());
+  initPrismaClient().whenComplete(() {
+    print("Prisma inicializado");
+    runApp(const MyApp());
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -40,21 +41,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  AccountController accountController = AccountController();
 
   @override
   Widget build(BuildContext context) {
     prisma.account.findMany().then((value) {
       print(value);
     });
-
-    AccountController accountController = AccountController(prisma);
 
     return Scaffold(
       appBar: AppBar(
@@ -66,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              '$_counter',
+              'test',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             LoginForm(onSubmitted: (String email, String password) {
