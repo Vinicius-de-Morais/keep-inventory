@@ -62,6 +62,14 @@ class _MyHomePageState extends State<MyHomePage> {
             LoginForm(onSubmitted: (String email, String password) {
               print('Email: $email, Password: $password');
             }),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                          builder: (context) => InitialAccountSelectView()));
+                },
+                child: Text("Seleção de tela"))
           ],
         ),
       ),
