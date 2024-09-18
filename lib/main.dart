@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:keep_inventory/services/account_controller.dart';
+import 'package:keep_inventory/views/initial_account_select_view/index.dart';
 import 'package:keep_inventory/widgets/account_register_form.dart';
 import 'package:keep_inventory/widgets/loginForm.dart';
 
@@ -48,6 +49,8 @@ class _MyHomePageState extends State<MyHomePage> {
     prisma.account.findMany().then((value) {
       print(value);
     });
+
+    return InitialAccountSelectView();
 
     return Scaffold(
       appBar: AppBar(

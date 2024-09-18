@@ -1,4 +1,3 @@
-import 'package:keep_inventory/_generated_prisma_client/client.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
 import 'package:keep_inventory/prisma.dart';
