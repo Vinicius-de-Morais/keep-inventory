@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/services/account_controller.dart';
 import 'package:keep_inventory/utils/list_space_gap.dart';
+import 'package:keep_inventory/views/initial_account_select_view/account_button.dart';
 
 class InitialAccountSelectView extends StatefulWidget {
   const InitialAccountSelectView({super.key});
@@ -53,24 +54,19 @@ class _InitialAccountSelectViewState extends State<InitialAccountSelectView> {
                           children: [
                             Text("Selecione um grupo para prosseguir:"),
                             ...state.data!.map((account) {
-                              return Material(
-                                key: Key(account.id!.toString()),
-                                child: InkWell(
-                                  onTap: () {
-                                    print("porra");
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey),
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(8)),
-                                    ),
-                                    child: Text(account.name!),
-                                  ),
-                                ),
+                              return AccountButton(
+                                title: account.name!,
+                                description: account.description,
+                                icon: Icon(Icons.arrow_forward),
+                                onTap: () {},
                               );
-                            })
+                            }),
+                            SizedBox(height: 16),
+                            AccountButton(
+                              title: "Criar nova conta",
+                              icon: Icon(Icons.add),
+                              onTap: () {},
+                            )
                           ].withSpaceBetween(height: 8),
                         );
                       }),
