@@ -21,13 +21,6 @@ class _AccountRegisterFormState extends State<AccountRegisterForm> {
 
   @override
   Widget build(BuildContext context) {
-    late Future<Iterable<Account>> accounts =
-        widget.accountController.getAccounts();
-
-    accounts.then((value) {
-      print(value);
-    });
-
     return Scaffold(
       body: Form(
         key: _formKey,
@@ -66,30 +59,25 @@ class _AccountRegisterFormState extends State<AccountRegisterForm> {
               },
               child: const Text('Submit'),
             ),
-            /*FutureBuilder<Iterable<Account>>(
-              initialData: const Iterable.empty(),
-              future: accounts,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  return ListView.builder(
-                    itemCount: snapshot.data?.length,
-                    itemBuilder: (context, index) {
-                      Account account = snapshot.data != null
-                          ? snapshot.data!.elementAt(index)
-                          : Account();
-                      return ListTile(
-                        title: Text(account.name ?? ''),
-                        subtitle: Text(account.userName ?? ''),
-                      );
-                    },
-                  );
-                }
-              },
-            )*/
+            Wrap(
+              children: [
+                FutureBuilder<Iterable<Account>>(
+                  initialData: const Iterable.empty(),
+                  future: widget.accountController.getAccounts(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return snapshot.data!.isNotEmpty
+                          ? listView(snapshot.data!, snapshot.data!.length)
+                          : const Text("Sem contas");
+                    }
+                  },
+                )
+              ],
+            )
           ],
         ),
       ),
@@ -101,5 +89,23 @@ class _AccountRegisterFormState extends State<AccountRegisterForm> {
       return 'Por favor, insira algum valor';
     }
     return null;
+  }
+
+  ListView listView(Iterable<Account> accounts, int lenght) {
+    return ListView.builder(
+      scrollDirection: Axis.vertical,
+      shrinkWrap: true,
+      itemCount: lenght,
+      cacheExtent: 0,
+      itemBuilder: (context, index) {
+        Account account = accounts.elementAtOrNull(index) != null
+            ? accounts.elementAt(index)
+            : Account();
+        return ListTile(
+          title: Text(account.name ?? ''),
+          subtitle: Text(account.userName ?? ''),
+        );
+      },
+    );
   }
 }
