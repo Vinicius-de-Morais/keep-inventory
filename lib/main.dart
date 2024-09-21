@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:keep_inventory/services/account_controller.dart';
-import 'package:keep_inventory/views/initial_account_select_view/index.dart';
-import 'package:keep_inventory/widgets/account_register_form.dart';
+import 'package:keep_inventory/views/initial_account_select_view/initial_account_select_view.dart';
+import 'package:keep_inventory/views/account_register_form.dart';
+import 'package:keep_inventory/views/product_list_view/product_list_view.dart';
 import 'package:keep_inventory/widgets/loginForm.dart';
 
 import '_generated_prisma_client/model.dart';
@@ -51,26 +52,37 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'test',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            LoginForm(onSubmitted: (String email, String password) {
-              print('Email: $email, Password: $password');
-            }),
-            ElevatedButton(
+      body: Padding(
+        padding: const EdgeInsets.all(48.0),
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Text(
+                'Seja bem-vindo',
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+              Text('Gerencie seu inventário de forma simples'),
+              SizedBox(height: 32),
+              ElevatedButton(
+                child: Text("Iniciar"),
                 onPressed: () {
                   Navigator.push(
                       context,
                       CupertinoPageRoute(
                           builder: (context) => InitialAccountSelectView()));
                 },
-                child: Text("Seleção de tela"))
-          ],
+              ),
+              TextButton(
+                  child: Text("Lista de Produtos"),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                            builder: (context) => ProductListView()));
+                  })
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -78,8 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.push(
                   context,
                   CupertinoPageRoute(
-                      builder: (context) => AccountRegisterForm(
-                          accountController: accountController)),
+                      builder: (context) => AccountRegisterForm()),
                 )
               },
           tooltip: 'criar conta',

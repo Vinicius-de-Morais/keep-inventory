@@ -18,9 +18,7 @@ class AccountButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       child: InkWell(
-        onTap: () {
-          print("porra");
-        },
+        onTap: onTap,
         child: Container(
             padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
