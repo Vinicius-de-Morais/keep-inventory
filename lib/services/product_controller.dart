@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
 import 'package:keep_inventory/prisma.dart';
@@ -11,5 +12,34 @@ class Productcontroller {
 
   Future<ActionClient<Product?>> getProduct(int id) async {
     return prisma.product.findUnique(where: ProductWhereUniqueInput(id: id));
+  }
+
+  Future<ActionClient<Product>> createProduct(String name, String description,
+      String barcode, Category category, int accountId) async {
+    return prisma.product.create(
+        data: PrismaUnion.$1(ProductCreateInput(
+      name: name,
+      description: PrismaUnion.$1(description),
+      barcodeContent: PrismaUnion.$1(barcode),
+      account: AccountCreateNestedOneWithoutProductsInput(
+          connect: AccountWhereUniqueInput(id: accountId)),
+    )));
+  }
+
+  Future<ActionClient<Product?>> updateProduct(int id, String name,
+      String description, String barcode, int categoryId) async {
+    return prisma.product.update(
+        where: ProductWhereUniqueInput(id: id),
+        data: PrismaUnion.$1(ProductUpdateInput(
+          name: PrismaUnion.$1(name),
+          description: PrismaUnion.$1(description),
+          barcodeContent: PrismaUnion.$1(barcode),
+          category: ProductCategoryUpdateOneWithoutProductsNestedInput(
+              connect: ProductCategoryWhereUniqueInput(id: categoryId)),
+        )));
+  }
+
+  Future<ActionClient<Product?>> deleteProduct(int id) async {
+    return prisma.product.delete(where: ProductWhereUniqueInput(id: id));
   }
 }

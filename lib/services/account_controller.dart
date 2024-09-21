@@ -4,6 +4,7 @@ import 'package:keep_inventory/prisma.dart';
 import 'package:orm/orm.dart';
 
 class AccountController {
+  
   Future<Account> createAccount(
       String name, String userName, String description) async {
     Account account = await prisma.account.create(
