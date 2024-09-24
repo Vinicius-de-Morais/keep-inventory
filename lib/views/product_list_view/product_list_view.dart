@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
+import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
 import 'package:keep_inventory/prisma.dart';
+import 'package:orm/orm.dart';
 
 class ProductListView extends StatefulWidget {
   @override
@@ -17,11 +19,22 @@ class _ProductListViewState extends State<ProductListView> {
   List<Product> products = [];
 
   _ProductListViewState() {
-    prisma.account.findMany().then((loaded) {
-      setState(() {});
-    });
+    prisma.account.findMany(
+      include: const AccountInclude(
+        categories: PrismaUnion.$1(true),
+        products: PrismaUnion.$1(true),
+      ),
+    );
 
-    prisma.product.findMany().then((loaded) {
+    prisma.product
+        .findMany(
+      include: const ProductInclude(
+        account: PrismaUnion.$1(true),
+        category: PrismaUnion.$1(true),
+        lotes: PrismaUnion.$1(true),
+      ),
+    )
+        .then((loaded) {
       setState(() {
         products = loaded.toList();
       });
@@ -44,10 +57,12 @@ class _ProductListViewState extends State<ProductListView> {
             cacheExtent: 0,
             itemBuilder: (context, index) {
               Product p = products[index];
+              String desc = p.description ?? '';
 
               return ListTile(
                 title: Text(p.name ?? ''),
-                subtitle: Text(p.description ?? ''),
+                subtitle: Text(
+                    "${desc}\n${p.lotes?.length ?? 0} lotes\n${p.category?.name ?? 'Sem categoria'}"),
               );
             },
           ),

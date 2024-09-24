@@ -20,17 +20,17 @@ INSERT INTO "Product" (id, account_id, description, product_category_id, name, b
 
 -- Sample Data for "lote" table
 INSERT INTO "Lote" (id, product_id, quantity_minimum, quantity_current, expiration_date, creation_date, purchase_price) VALUES
-(1, 1, 5, 12, '2026-12-31', '2024-09-15', 2000.00),
-(2, 2, 3, 7, NULL, '2024-09-16', 1500.00),
-(3, 3, 10, 25, '2025-06-30', '2024-09-17', 300.00),
-(4, 4, 2, 5, NULL, '2024-09-17', 1200.00);
+(1, 1, 5, 12, '2024-09-23T23:33:41.558Z', '2024-09-23T23:33:41.558Z', 2000.00),
+(2, 2, 3, 7, NULL, '2024-09-23T23:33:41.558Z', 1500.00),
+(3, 3, 10, 25, '2024-09-23T23:33:41.558Z', '2024-09-23T23:33:41.558Z', 300.00),
+(4, 4, 2, 5, NULL, '2024-09-23T23:33:41.558Z', 1200.00);
 
 -- Sample Data for "lote_updates" table
 INSERT INTO "LoteUpdates" (id, stock_id, update_time, quantity_delta) VALUES
-(1, 1, '2024-09-18 10:00:00', -2),
-(2, 1, '2024-09-20 12:30:00', 3),
-(3, 2, '2024-09-18 14:45:00', -1),
-(4, 3, '2024-09-19 09:15:00', -5);
+(1, 1, '2024-09-23T23:33:41.558Z', -2),
+(2, 1, '2024-09-23T23:33:41.558Z', 3),
+(3, 2, '2024-09-23T23:33:41.558Z', -1),
+(4, 3, '2024-09-23T23:33:41.558Z', -5);
 
 -- Sample Data for "shopping_list" table
 INSERT INTO "ShoppingList" (stock_id, count) VALUES
