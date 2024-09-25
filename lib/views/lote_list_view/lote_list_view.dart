@@ -2,43 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
 import 'package:keep_inventory/prisma.dart';
+import 'package:keep_inventory/services/lote_controller.dart';
 import 'package:keep_inventory/services/product_controller.dart';
 import 'package:keep_inventory/utils/list_space_gap.dart';
 import 'package:orm/orm.dart';
 
-class ProductListView extends StatefulWidget {
-  const ProductListView({super.key});
+class LoteListView extends StatefulWidget {
+  const LoteListView({super.key});
 
   @override
-  ProductListViewState createState() => ProductListViewState();
+  LoteListViewState createState() => LoteListViewState();
 }
 
-class ProductListViewState extends State<ProductListView> {
-  List<Product> products = [];
-  Productcontroller productcontroller = Productcontroller();
+class LoteListViewState extends State<LoteListView> {
+  List<Lote> lotes = [];
+  LoteController loteController = LoteController();
 
-  ProductListViewState() {
+  LoteListViewState() {
     refresh();
   }
 
   void refresh() {
-    prisma.product
+    prisma.lote
         .findMany(
-      include: const ProductInclude(
-        account: PrismaUnion.$1(true),
-        category: PrismaUnion.$1(true),
-        lotes: PrismaUnion.$1(true),
+      include: const LoteInclude(
+        product: PrismaUnion.$1(true),
+        loteUpdates: PrismaUnion.$1(true),
+        shoppingList: PrismaUnion.$1(true),
       ),
     )
         .then((loaded) {
       setState(() {
-        products = loaded.toList();
+        lotes = loaded.toList();
       });
     });
   }
 
   void deleteSelected(int id) {
-    productcontroller.deleteProduct(id).then((_) {
+    loteController.deleteLote(id).then((_) {
       refresh();
     });
   }
@@ -48,7 +49,7 @@ class ProductListViewState extends State<ProductListView> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Lista de Produtos'),
+          title: const Text('Lista de Lotes'),
         ),
         body: SafeArea(
           child: Column(
@@ -85,10 +86,8 @@ class ProductListViewState extends State<ProductListView> {
                                 ));
                           },
                           menuChildren: <Widget>[
-                            const MenuItemButton(
-                                child: Text("Todos os produtos")),
-                            const MenuItemButton(
-                                child: Text("Apenas com estoque vazio")),
+                            const MenuItemButton(child: Text("Todos os lotes")),
+                            const MenuItemButton(child: Text("Apenas vazios")),
                           ],
                         ),
                         const SizedBox(width: 8),
@@ -126,17 +125,29 @@ class ProductListViewState extends State<ProductListView> {
                 child: ListView.builder(
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
-                  itemCount: products.length,
+                  itemCount: lotes.length,
                   cacheExtent: 0,
                   itemBuilder: (context, index) {
-                    Product p = products[index];
-                    String desc = p.description ?? '';
-                    String lot = "${p.lotes?.length ?? 0} lotes";
-                    String cat = p.category?.name ?? 'Sem categoria';
+                    Lote l = lotes[index];
+
+                    String productName =
+                        l.product?.name ?? "Produto desconhecido";
+                    String? precoCompra = l.purchasePrice != null
+                        ? "R\$ ${l.purchasePrice!.toStringAsFixed(2)}"
+                        : null;
+                    int qtdMin = l.quantityMinimum ?? 0;
+                    int qtdCurr = l.quantityCurrent ?? 0;
+                    DateTime? expDate = l.expirationDate;
+
+                    String subtitle = [
+                      if (precoCompra != null) precoCompra,
+                      "Quantidade: $qtdCurr/$qtdMin un.",
+                      if (expDate != null) expDate.toIso8601String(),
+                    ].join("\n");
 
                     return ListTile(
-                      title: Text(p.name ?? ''),
-                      subtitle: Text([desc, cat, lot].join("\n")),
+                      title: Text(productName),
+                      subtitle: Text(subtitle),
                       trailing: MenuAnchor(
                         menuChildren: <Widget>[
                           MenuItemButton(
@@ -155,7 +166,7 @@ class ProductListViewState extends State<ProductListView> {
                               ].withSpaceBetween(width: 16),
                             ),
                             onPressed: () {
-                              deleteSelected(p.id!);
+                              deleteSelected(l.id!);
                             },
                           ),
                         ],

@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:keep_inventory/services/account_controller.dart';
+import 'package:keep_inventory/views/category_list_view/category_list_view.dart';
 import 'package:keep_inventory/views/initial_account_select_view/initial_account_select_view.dart';
 import 'package:keep_inventory/views/account_register_form.dart';
+import 'package:keep_inventory/views/lote_list_view/lote_list_view.dart';
 import 'package:keep_inventory/views/product_list_view/product_list_view.dart';
 import 'package:keep_inventory/widgets/loginForm.dart';
 
@@ -80,6 +82,22 @@ class _MyHomePageState extends State<MyHomePage> {
                         context,
                         CupertinoPageRoute(
                             builder: (context) => ProductListView()));
+                  }),
+              TextButton(
+                  child: Text("Lista de Categorias"),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                            builder: (context) => CategoryListView()));
+                  }),
+              TextButton(
+                  child: Text("Lista de Lotes"),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                            builder: (context) => LoteListView()));
                   })
             ],
           ),

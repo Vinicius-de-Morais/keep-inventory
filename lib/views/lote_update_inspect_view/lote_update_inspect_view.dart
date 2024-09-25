@@ -2,44 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
 import 'package:keep_inventory/prisma.dart';
-import 'package:keep_inventory/services/product_controller.dart';
+import 'package:keep_inventory/services/lote_controller.dart';
 import 'package:keep_inventory/utils/list_space_gap.dart';
 import 'package:orm/orm.dart';
 
-class ProductListView extends StatefulWidget {
-  const ProductListView({super.key});
+class LoteUpdateInspectView extends StatefulWidget {
+  final int loteId;
+  const LoteUpdateInspectView({super.key, required this.loteId});
 
   @override
-  ProductListViewState createState() => ProductListViewState();
+  LoteUpdateInspectViewState createState() => LoteUpdateInspectViewState();
 }
 
-class ProductListViewState extends State<ProductListView> {
-  List<Product> products = [];
-  Productcontroller productcontroller = Productcontroller();
+class LoteUpdateInspectViewState extends State<LoteUpdateInspectView> {
+  late Lote lote;
+  LoteController loteController = LoteController();
 
-  ProductListViewState() {
+  LoteUpdateInspectViewState() {
     refresh();
   }
 
   void refresh() {
-    prisma.product
-        .findMany(
-      include: const ProductInclude(
-        account: PrismaUnion.$1(true),
-        category: PrismaUnion.$1(true),
-        lotes: PrismaUnion.$1(true),
+    prisma.lote
+        .findFirstOrThrow(
+            where: LoteWhereInput(
+      id: PrismaUnion.$1(
+        IntFilter(
+          equals: PrismaUnion.$1(widget.loteId),
+        ),
       ),
-    )
+    ))
         .then((loaded) {
       setState(() {
-        products = loaded.toList();
+        lote = loaded;
       });
-    });
-  }
-
-  void deleteSelected(int id) {
-    productcontroller.deleteProduct(id).then((_) {
-      refresh();
     });
   }
 
@@ -48,7 +44,7 @@ class ProductListViewState extends State<ProductListView> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Lista de Produtos'),
+          title: const Text('Inspecionar lote'),
         ),
         body: SafeArea(
           child: Column(
@@ -85,10 +81,8 @@ class ProductListViewState extends State<ProductListView> {
                                 ));
                           },
                           menuChildren: <Widget>[
-                            const MenuItemButton(
-                                child: Text("Todos os produtos")),
-                            const MenuItemButton(
-                                child: Text("Apenas com estoque vazio")),
+                            const MenuItemButton(child: Text("Todos os lotes")),
+                            const MenuItemButton(child: Text("Apenas vazios")),
                           ],
                         ),
                         const SizedBox(width: 8),
@@ -120,61 +114,6 @@ class ProductListViewState extends State<ProductListView> {
                       ],
                     )
                   ].withSpaceBetween(height: 8),
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemCount: products.length,
-                  cacheExtent: 0,
-                  itemBuilder: (context, index) {
-                    Product p = products[index];
-                    String desc = p.description ?? '';
-                    String lot = "${p.lotes?.length ?? 0} lotes";
-                    String cat = p.category?.name ?? 'Sem categoria';
-
-                    return ListTile(
-                      title: Text(p.name ?? ''),
-                      subtitle: Text([desc, cat, lot].join("\n")),
-                      trailing: MenuAnchor(
-                        menuChildren: <Widget>[
-                          MenuItemButton(
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.edit),
-                                  const Text("Editar"),
-                                ].withSpaceBetween(width: 16),
-                              ),
-                              onPressed: () {}),
-                          MenuItemButton(
-                            child: Row(
-                              children: [
-                                const Icon(Icons.delete),
-                                const Text("Apagar")
-                              ].withSpaceBetween(width: 16),
-                            ),
-                            onPressed: () {
-                              deleteSelected(p.id!);
-                            },
-                          ),
-                        ],
-                        builder: (BuildContext context,
-                            MenuController controller, Widget? child) {
-                          return IconButton(
-                            icon: const Icon(Icons.more_vert),
-                            onPressed: () {
-                              if (controller.isOpen) {
-                                controller.close();
-                              } else {
-                                controller.open();
-                              }
-                            },
-                          );
-                        },
-                      ),
-                    );
-                  },
                 ),
               ),
             ].withSpaceBetween(height: 8),
