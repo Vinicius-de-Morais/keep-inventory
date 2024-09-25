@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
@@ -5,6 +6,7 @@ import 'package:keep_inventory/prisma.dart';
 import 'package:keep_inventory/services/lote_controller.dart';
 import 'package:keep_inventory/services/product_controller.dart';
 import 'package:keep_inventory/utils/list_space_gap.dart';
+import 'package:keep_inventory/views/lote_update_inspect_view/lote_update_inspect_view.dart';
 import 'package:orm/orm.dart';
 
 class LoteListView extends StatefulWidget {
@@ -150,6 +152,21 @@ class LoteListViewState extends State<LoteListView> {
                       subtitle: Text(subtitle),
                       trailing: MenuAnchor(
                         menuChildren: <Widget>[
+                          MenuItemButton(
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.view_timeline_sharp),
+                                  const Text("Ver movimentações"),
+                                ].withSpaceBetween(width: 16),
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(
+                                      builder: (context) =>
+                                          LoteUpdateInspectView(loteId: l.id!),
+                                    ));
+                              }),
                           MenuItemButton(
                               child: Row(
                                 children: [

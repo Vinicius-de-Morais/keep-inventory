@@ -15,14 +15,15 @@ class LoteUpdateInspectView extends StatefulWidget {
 }
 
 class LoteUpdateInspectViewState extends State<LoteUpdateInspectView> {
-  late Lote lote;
+  Lote? lote;
+  List<LoteUpdates> loteUpdates = [];
+
   LoteController loteController = LoteController();
 
-  LoteUpdateInspectViewState() {
-    refresh();
-  }
+  @override
+  void initState() {
+    super.initState();
 
-  void refresh() {
     prisma.lote
         .findFirstOrThrow(
             where: LoteWhereInput(
@@ -37,10 +38,20 @@ class LoteUpdateInspectViewState extends State<LoteUpdateInspectView> {
         lote = loaded;
       });
     });
+
+    prisma.loteUpdates
+        .findMany(include: LoteUpdatesInclude(lote: PrismaUnion.$1(true)))
+        .then((loaded) {
+      setState(() {
+        loteUpdates = loaded.where((t) => t.lote?.id == widget.loteId).toList();
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (lote == null) return Container();
+
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -49,79 +60,59 @@ class LoteUpdateInspectViewState extends State<LoteUpdateInspectView> {
         body: SafeArea(
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    const TextField(
-                      decoration: InputDecoration(
-                        border: UnderlineInputBorder(),
-                        labelText: 'Pesquisar...',
+              Card(
+                color: ThemeData().colorScheme.surfaceContainer,
+                margin: EdgeInsets.all(8),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16.0),
+                        child: Row(
+                          children: [
+                            const Expanded(child: Text("Movimentações")),
+                            ElevatedButton(
+                                onPressed: () {},
+                                child: const Text("Adicionar"))
+                          ],
+                        ),
                       ),
-                    ),
-                    Row(
-                      children: [
-                        MenuAnchor(
-                          builder: (BuildContext context,
-                              MenuController controller, Widget? child) {
-                            return ElevatedButton(
-                                onPressed: () {
-                                  if (controller.isOpen) {
-                                    controller.close();
-                                  } else {
-                                    controller.open();
-                                  }
-                                },
-                                child: const Row(
-                                  children: [
-                                    Icon(Icons.filter_list),
-                                    SizedBox(width: 8),
-                                    Text("Filtros")
-                                  ],
-                                ));
-                          },
-                          menuChildren: <Widget>[
-                            const MenuItemButton(child: Text("Todos os lotes")),
-                            const MenuItemButton(child: Text("Apenas vazios")),
-                          ],
-                        ),
-                        const SizedBox(width: 8),
-                        MenuAnchor(
-                          builder: (BuildContext context,
-                              MenuController controller, Widget? child) {
-                            return ElevatedButton(
-                                onPressed: () {
-                                  if (controller.isOpen) {
-                                    controller.close();
-                                  } else {
-                                    controller.open();
-                                  }
-                                },
-                                child: const Row(
-                                  children: [
-                                    Icon(Icons.sort),
-                                    SizedBox(width: 8),
-                                    Text("Ordem")
-                                  ],
-                                ));
-                          },
-                          menuChildren: const <Widget>[
-                            MenuItemButton(child: Text("Alfabética")),
-                            MenuItemButton(
-                                child: Text("Por quantidade de estoque")),
-                          ],
-                        ),
-                      ],
-                    )
-                  ].withSpaceBetween(height: 8),
+                      ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        itemCount: loteUpdates.length,
+                        cacheExtent: 0,
+                        itemBuilder: (context, index) {
+                          LoteUpdates upd = loteUpdates[index];
+
+                          String subtitle = [
+                            "Delta: ${upd.quantityDelta ?? 0}",
+                            upd.updateTime!.toIso8601String(),
+                          ].join("\n");
+
+                          Widget delta = upd.quantityDelta! < 0
+                              ? Text("${upd.quantityDelta!}",
+                                  style: TextStyle(
+                                      color: Colors.red, fontSize: 24))
+                              : Text("+${upd.quantityDelta!}",
+                                  style: TextStyle(
+                                      color: Colors.green, fontSize: 24));
+
+                          return ListTile(
+                            title: const Text("A"),
+                            subtitle: Text(subtitle),
+                            trailing: delta,
+                          );
+                        },
+                      ),
+                    ].withSpaceBetween(height: 8),
+                  ),
                 ),
               ),
             ].withSpaceBetween(height: 8),
           ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () {},
         ),
       ),
     );
