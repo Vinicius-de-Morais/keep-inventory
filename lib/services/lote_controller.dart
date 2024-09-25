@@ -5,11 +5,20 @@ import 'package:orm/orm.dart';
 
 class LoteController {
   Future<ActionClient<Iterable<Lote>>> getLotes() async {
-    return prisma.lote.findMany();
+    return prisma.lote.findMany(
+        include: const LoteInclude(
+      product: PrismaUnion.$1(true),
+      loteUpdates: PrismaUnion.$1(true),
+    ));
   }
 
   Future<ActionClient<Lote?>> getLote(int id) async {
-    return prisma.lote.findUnique(where: LoteWhereUniqueInput(id: id));
+    return prisma.lote.findUnique(
+        where: LoteWhereUniqueInput(id: id),
+        include: const LoteInclude(
+          product: PrismaUnion.$1(true),
+          loteUpdates: PrismaUnion.$1(true),
+        ));
   }
 
   Future<ActionClient<Lote>> createLote(int quantityMinimum,

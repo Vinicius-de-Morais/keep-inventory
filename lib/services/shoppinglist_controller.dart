@@ -5,12 +5,16 @@ import 'package:orm/orm.dart';
 
 class ShoppingListController {
   Future<ActionClient<Iterable<ShoppingList>>> getShoppingLists() async {
-    return prisma.shoppingList.findMany();
+    return prisma.shoppingList.findMany(
+        include: const ShoppingListInclude(
+      lote: PrismaUnion.$1(true),
+    ));
   }
 
   Future<ActionClient<ShoppingList?>> getShoppingList(int stockId) async {
-    return prisma.shoppingList
-        .findUnique(where: ShoppingListWhereUniqueInput(stockId: stockId));
+    return prisma.shoppingList.findUnique(
+        where: ShoppingListWhereUniqueInput(stockId: stockId),
+        include: const ShoppingListInclude(lote: PrismaUnion.$1(true)));
   }
 
   Future<ActionClient<ShoppingList>> createShoppingList(

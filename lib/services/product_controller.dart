@@ -7,11 +7,24 @@ import 'package:orm/src/runtime/action_client.dart';
 
 class Productcontroller {
   Future<ActionClient<Iterable<Product>>> getProducts() async {
-    return prisma.product.findMany();
+    return prisma.product.findMany(
+      include: const ProductInclude(
+        account: PrismaUnion.$1(true),
+        category: PrismaUnion.$1(true),
+        lotes: PrismaUnion.$1(true),
+      ),
+    );
   }
 
   Future<ActionClient<Product?>> getProduct(int id) async {
-    return prisma.product.findUnique(where: ProductWhereUniqueInput(id: id));
+    return prisma.product.findUnique(
+      where: ProductWhereUniqueInput(id: id),
+      include: const ProductInclude(
+        account: PrismaUnion.$1(true),
+        category: PrismaUnion.$1(true),
+        lotes: PrismaUnion.$1(true),
+      ),
+    );
   }
 
   Future<ActionClient<Product>> createProduct(String name, String description,

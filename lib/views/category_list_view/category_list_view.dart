@@ -1,10 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
 import 'package:keep_inventory/prisma.dart';
 import 'package:keep_inventory/services/category_controller.dart';
 import 'package:keep_inventory/utils/list_space_gap.dart';
+import 'package:keep_inventory/widgets/category_register_form.dart';
 import 'package:orm/orm.dart';
 
 class CategoryListView extends StatefulWidget {
@@ -126,7 +126,18 @@ class CategoryListViewState extends State<CategoryListView> {
         ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Scaffold(
+                  body: ProductCategoryRegisterForm(accountId: 1),
+                ),
+              ),
+            ).then((_) {
+              refresh();
+            });
+          },
         ),
       ),
     );

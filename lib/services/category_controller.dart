@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
 import 'package:keep_inventory/prisma.dart';
@@ -5,22 +6,35 @@ import 'package:orm/orm.dart';
 
 class CategoryController {
   Future<ActionClient<Iterable<ProductCategory>>> getCategories() async {
-    return prisma.productCategory.findMany();
+    return prisma.productCategory.findMany(
+        /*include: const ProductCategoryInclude(
+            account: PrismaUnion.$1(true),
+            parent: PrismaUnion.$1(true),
+            children: PrismaUnion.$1(true))*/
+        );
   }
 
   Future<ActionClient<ProductCategory?>> getCategory(int id) async {
-    return prisma.productCategory
-        .findUnique(where: ProductCategoryWhereUniqueInput(id: id));
+    return prisma.productCategory.findUnique(
+        where: ProductCategoryWhereUniqueInput(id: id),
+        include: const ProductCategoryInclude(
+            account: PrismaUnion.$1(true),
+            parent: PrismaUnion.$1(true),
+            children: PrismaUnion.$1(true)));
   }
 
   Future<ActionClient<ProductCategory>> createCategory(
-      String name, String description, int accountId) async {
+      String name, String description, int accountId, int? parentId) async {
     return prisma.productCategory.create(
         data: PrismaUnion.$1(ProductCategoryCreateInput(
       name: PrismaUnion.$1(name),
       description: PrismaUnion.$1(description),
       account: AccountCreateNestedOneWithoutCategoriesInput(
           connect: AccountWhereUniqueInput(id: accountId)),
+      parent: parentId == null
+          ? null
+          : ProductCategoryCreateNestedOneWithoutChildrenInput(
+              connect: ProductCategoryWhereUniqueInput(id: parentId)),
     )));
   }
 
