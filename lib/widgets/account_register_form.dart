@@ -23,7 +23,8 @@ class _AccountRegisterFormState extends State<AccountRegisterForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gerenciamento de Inventário'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Criar nova conta'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

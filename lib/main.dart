@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:keep_inventory/services/account_controller.dart';
 import 'package:keep_inventory/views/category_list_view/category_list_view.dart';
 import 'package:keep_inventory/views/initial_account_select_view/initial_account_select_view.dart';
-import 'package:keep_inventory/views/account_register_form.dart';
 import 'package:keep_inventory/views/lote_list_view/lote_list_view.dart';
 import 'package:keep_inventory/views/product_list_view/product_list_view.dart';
+import 'package:keep_inventory/widgets/account_register_form.dart';
 import 'package:keep_inventory/widgets/loginForm.dart';
 
 import '_generated_prisma_client/model.dart';

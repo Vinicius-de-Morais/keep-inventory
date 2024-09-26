@@ -51,6 +51,7 @@ class LoteListViewState extends State<LoteListView> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: const Text('Lista de Lotes'),
         ),
         body: SafeArea(
