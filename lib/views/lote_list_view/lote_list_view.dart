@@ -4,9 +4,10 @@ import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
 import 'package:keep_inventory/prisma.dart';
 import 'package:keep_inventory/services/lote_controller.dart';
-import 'package:keep_inventory/services/product_controller.dart';
 import 'package:keep_inventory/utils/list_space_gap.dart';
 import 'package:keep_inventory/views/lote_update_inspect_view/lote_update_inspect_view.dart';
+import 'package:keep_inventory/widgets/form_render.dart';
+import 'package:keep_inventory/widgets/product_register_form.dart';
 import 'package:orm/orm.dart';
 
 class LoteListView extends StatefulWidget {
@@ -210,8 +211,20 @@ class LoteListViewState extends State<LoteListView> {
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () {},
+          child: const Icon(Icons.add),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FormRender(
+                  form: ProductRegisterForm(
+                    accountId: 1,
+                  ),
+                  title: "Cadastrar Produto",
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

@@ -2,28 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/prisma.dart';
-import 'package:keep_inventory/services/product_controller.dart';
+import 'package:keep_inventory/services/lote_controller.dart';
 
-class ProductRegisterForm extends StatefulWidget {
-  ProductRegisterForm({super.key, required this.accountId, this.productId});
+class LoteForm extends StatefulWidget {
+  LoteForm({super.key, required this.accountId, this.loteId});
 
   final int accountId;
-  final int? productId;
+  final int? loteId;
 
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
-  final TextEditingController barcodeController = TextEditingController();
+  final TextEditingController quantityMinimumController =
+      TextEditingController();
+  final TextEditingController quantityCurrentController =
+      TextEditingController();
+  final TextEditingController purchasePriceController = TextEditingController();
 
-  int? category;
+  DateTime? expirationDate;
+
+  int? productId;
 
   @override
-  _ProductRegisterFormState createState() => _ProductRegisterFormState();
+  _LoteFormState createState() => _LoteFormState();
 }
 
-class _ProductRegisterFormState extends State<ProductRegisterForm> {
+class _LoteFormState extends State<LoteForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final ProductController productController = ProductController();
+  final LoteController loteController = LoteController();
 
   @override
   Widget build(BuildContext context) {
@@ -32,54 +36,53 @@ class _ProductRegisterFormState extends State<ProductRegisterForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          TextFormField(
-            decoration: const InputDecoration(
-              hintText: 'Nome do Produto',
-            ),
-            validator: (value) => this.validateField(value),
-            controller: widget.nameController,
-          ),
           FutureBuilder(
-              future: prisma.productCategory.findMany(),
-              //categoryController.getCategories(),
+              future: prisma.product.findMany(),
               builder: (context, itemdata) {
                 if (itemdata.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else {
                   return DropdownButtonFormField(
                     decoration: const InputDecoration(
-                      hintText: "Selecione a categoria",
+                      hintText: "Selecione o produto",
                     ),
-                    items: this.filterCategory(itemdata.data!),
+                    items: this.filterProduct(itemdata.data!),
                     onChanged: (value) {
-                      widget.category = int.parse(value!);
+                      widget.productId = int.parse(value!);
                     },
                   );
                 }
               }),
           TextFormField(
             decoration: const InputDecoration(
-              hintText: 'Descrição do Produto',
+              hintText: 'Quantidade minima',
             ),
             validator: (value) => this.validateField(value),
-            controller: widget.descriptionController,
+            controller: widget.quantityMinimumController,
           ),
           TextFormField(
             decoration: const InputDecoration(
-              hintText: 'Codigo de barras',
+              hintText: 'Quantidade atual',
             ),
             validator: (value) => this.validateField(value),
-            controller: widget.barcodeController,
+            controller: widget.quantityCurrentController,
+          ),
+          InputDatePickerFormField(
+            firstDate: DateTime.now(),
+            lastDate: DateTime.now(),
+            onDateSaved: (value) {
+              widget.expirationDate = value;
+            },
           ),
           ElevatedButton(
             onPressed: () {
               if (_formKey.currentState!.validate()) {
-                productController.createProduct(
-                    widget.nameController.text,
-                    widget.descriptionController.text,
-                    widget.barcodeController.text,
-                    widget.accountId,
-                    widget.category!);
+                loteController.createLote(
+                    int.parse(widget.quantityMinimumController.text),
+                    int.parse(widget.quantityCurrentController.text),
+                    double.parse(widget.purchasePriceController.text),
+                    widget.expirationDate!,
+                    widget.productId!);
               }
             },
             child: const Text('Submit'),
@@ -100,6 +103,13 @@ class _ProductRegisterFormState extends State<ProductRegisterForm> {
       Iterable<ProductCategory> categorias) {
     return categorias
         .where((element) => element.parent == null)
+        .map((e) => DropdownMenuItem(
+            value: e.id.toString(), child: Text(e.name ?? "N/A")))
+        .toList();
+  }
+
+  List<DropdownMenuItem<String>> filterProduct(Iterable<Product> produtos) {
+    return produtos
         .map((e) => DropdownMenuItem(
             value: e.id.toString(), child: Text(e.name ?? "N/A")))
         .toList();

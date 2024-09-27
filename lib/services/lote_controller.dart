@@ -21,14 +21,19 @@ class LoteController {
         ));
   }
 
-  Future<ActionClient<Lote>> createLote(int quantityMinimum,
-      int quantityCurrent, double purchasePrice, int productId) async {
+  Future<ActionClient<Lote>> createLote(
+      int quantityMinimum,
+      int quantityCurrent,
+      double purchasePrice,
+      DateTime expirationDate,
+      int productId) async {
     return prisma.lote.create(
         data: PrismaUnion.$1(LoteCreateInput(
       product: ProductCreateNestedOneWithoutLotesInput(
           connect: ProductWhereUniqueInput(id: productId)),
       quantityMinimum: quantityMinimum,
       quantityCurrent: quantityCurrent,
+      expirationDate: PrismaUnion.$1(expirationDate),
       purchasePrice: PrismaUnion.$1(purchasePrice),
     )));
   }
