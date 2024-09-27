@@ -5,6 +5,7 @@ import 'package:keep_inventory/prisma.dart';
 import 'package:keep_inventory/services/category_controller.dart';
 import 'package:keep_inventory/utils/list_space_gap.dart';
 import 'package:keep_inventory/widgets/category_register_form.dart';
+import 'package:keep_inventory/widgets/form_render.dart';
 import 'package:orm/orm.dart';
 
 class CategoryListView extends StatefulWidget {
@@ -131,9 +132,9 @@ class CategoryListViewState extends State<CategoryListView> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => Scaffold(
-                  body: ProductCategoryRegisterForm(accountId: 1),
-                ),
+                builder: (context) => FormRender(
+                    form: ProductCategoryRegisterForm(accountId: 1),
+                    title: "Nova Categoria"),
               ),
             ).then((_) {
               refresh();

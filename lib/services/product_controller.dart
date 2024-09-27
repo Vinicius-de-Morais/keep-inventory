@@ -5,7 +5,7 @@ import 'package:keep_inventory/prisma.dart';
 import 'package:orm/orm.dart';
 import 'package:orm/src/runtime/action_client.dart';
 
-class Productcontroller {
+class ProductController {
   Future<ActionClient<Iterable<Product>>> getProducts() async {
     return prisma.product.findMany(
       include: const ProductInclude(
@@ -28,14 +28,17 @@ class Productcontroller {
   }
 
   Future<ActionClient<Product>> createProduct(String name, String description,
-      String barcode, Category category, int accountId) async {
+      String barcode, int accountId, int categorId) async {
     return prisma.product.create(
         data: PrismaUnion.$1(ProductCreateInput(
       name: name,
       description: PrismaUnion.$1(description),
       barcodeContent: PrismaUnion.$1(barcode),
       account: AccountCreateNestedOneWithoutProductsInput(
-          connect: AccountWhereUniqueInput(id: accountId)),
+        connect: AccountWhereUniqueInput(id: accountId),
+      ),
+      category: ProductCategoryCreateNestedOneWithoutProductsInput(
+          connect: ProductCategoryWhereUniqueInput(id: categorId)),
     )));
   }
 
