@@ -1,16 +1,22 @@
-# keep_inventory
+Keep Inventory
+Este projeto é uma aplicação de gerenciamento de inventário desenvolvida em Flutter, que permite aos usuários registrar e gerenciar categorias de produtos, lotes e informações de contas.
 
-A new Flutter project.
+Funcionalidades
+Gerenciamento de Contas: Permite aos usuários criar, selecionar e gerenciar contas.
+Gerenciamento de Produtos: Registro, listagem e atualização de produtos no inventário.
+Gerenciamento de Lotes: Controle de lotes de produtos, com atualizações e inspeções de informações.
+Categoria de Produtos: Organização de produtos por categorias.
+Estrutura do Projeto
+lib/: Contém o código principal da aplicação Flutter.
 
-## Getting Started
+controllers/: Controladores responsáveis pela lógica de negócios da aplicação.
+models/: Definições dos modelos de dados utilizados na aplicação.
+views/: Contém as telas principais da aplicação, como listagem de produtos, categorias, e gerenciamento de contas.
+widgets/: Componentes reutilizáveis, como formulários de login, registro de produtos, e registro de categorias.
+android/: Configurações e código específicos para a plataforma Android.
 
-This project is a starting point for a Flutter application.
+src/: Código fonte do app para Android.
+prisma/: Diretório contendo arquivos de migração e schema para a configuração da base de dados utilizando Prisma.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Banco de Dados
+O projeto utiliza o Prisma para gerenciar o banco de dados
