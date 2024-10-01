@@ -15,8 +15,5 @@ views/: Contém as telas principais da aplicação, como listagem de produtos, c
 widgets/: Componentes reutilizáveis, como formulários de login, registro de produtos, e registro de categorias.
 android/: Configurações e código específicos para a plataforma Android.
 
-src/: Código fonte do app para Android.
-prisma/: Diretório contendo arquivos de migração e schema para a configuração da base de dados utilizando Prisma.
-
 Banco de Dados
 O projeto utiliza o Prisma para gerenciar o banco de dados
