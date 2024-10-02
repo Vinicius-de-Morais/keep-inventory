@@ -108,17 +108,30 @@ class CategoryListViewState extends State<CategoryListView> {
                         builder: (BuildContext context,
                             MenuController controller, Widget? child) {
                           return IconButton(
-                            icon: const Icon(Icons.more_vert),
-                            onPressed: () {
-                              if (controller.isOpen) {
-                                controller.close();
-                              } else {
-                                controller.open();
-                              }
-                            },
-                          );
+                              icon: const Icon(Icons.more_vert),
+                              onPressed: () {
+                                if (controller.isOpen) {
+                                  controller.close();
+                                } else {
+                                  controller.open();
+                                }
+                              });
                         },
                       ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => FormRender(
+                                  form: ProductCategoryRegisterForm(
+                                    accountId: 1,
+                                    category: c,
+                                  ),
+                                  title: "Editar Categoria")),
+                        ).then((_) {
+                          refresh();
+                        });
+                      },
                     );
                   },
                 ),

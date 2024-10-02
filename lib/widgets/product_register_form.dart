@@ -5,10 +5,10 @@ import 'package:keep_inventory/prisma.dart';
 import 'package:keep_inventory/services/product_controller.dart';
 
 class ProductRegisterForm extends StatefulWidget {
-  ProductRegisterForm({super.key, required this.accountId, this.productId});
+  ProductRegisterForm({super.key, required this.accountId, this.product});
 
   final int accountId;
-  final int? productId;
+  Product? product;
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
@@ -24,6 +24,15 @@ class _ProductRegisterFormState extends State<ProductRegisterForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final ProductController productController = ProductController();
+
+  _ProductRegisterFormState() {
+    if (mounted && widget.product != null) {
+      widget.nameController.text = widget.product!.name ?? "";
+      widget.descriptionController.text = widget.product!.description ?? "";
+      widget.barcodeController.text = widget.product!.barcodeContent ?? "";
+      widget.category = widget.product!.category!.id;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,12 +83,21 @@ class _ProductRegisterFormState extends State<ProductRegisterForm> {
           ElevatedButton(
             onPressed: () {
               if (_formKey.currentState!.validate()) {
-                productController.createProduct(
-                    widget.nameController.text,
-                    widget.descriptionController.text,
-                    widget.barcodeController.text,
-                    widget.accountId,
-                    widget.category!);
+                if (widget.product != null) {
+                  productController.updateProduct(
+                      widget.product!.id!,
+                      widget.nameController.text,
+                      widget.descriptionController.text,
+                      widget.barcodeController.text,
+                      widget.category!);
+                } else {
+                  productController.createProduct(
+                      widget.nameController.text,
+                      widget.descriptionController.text,
+                      widget.barcodeController.text,
+                      widget.accountId,
+                      widget.category!);
+                }
               }
             },
             child: const Text('Submit'),

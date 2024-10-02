@@ -5,10 +5,10 @@ import 'package:keep_inventory/prisma.dart';
 import 'package:keep_inventory/services/lote_controller.dart';
 
 class LoteForm extends StatefulWidget {
-  LoteForm({super.key, required this.accountId, this.loteId});
+  LoteForm({super.key, required this.accountId, this.lote});
 
   final int accountId;
-  final int? loteId;
+  Lote? lote;
 
   final TextEditingController quantityMinimumController =
       TextEditingController();
@@ -28,6 +28,21 @@ class _LoteFormState extends State<LoteForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final LoteController loteController = LoteController();
+
+  _LoteFormState() {
+    setState(() {
+      if (mounted && widget.lote != null) {
+        widget.quantityMinimumController.text =
+            widget.lote!.quantityMinimum.toString();
+        widget.quantityCurrentController.text =
+            widget.lote!.quantityCurrent.toString();
+        widget.purchasePriceController.text =
+            widget.lote!.purchasePrice.toString();
+        widget.expirationDate = widget.lote!.expirationDate;
+        widget.productId = widget.lote!.product!.id;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,12 +92,22 @@ class _LoteFormState extends State<LoteForm> {
           ElevatedButton(
             onPressed: () {
               if (_formKey.currentState!.validate()) {
-                loteController.createLote(
-                    int.parse(widget.quantityMinimumController.text),
-                    int.parse(widget.quantityCurrentController.text),
-                    double.parse(widget.purchasePriceController.text),
-                    widget.expirationDate!,
-                    widget.productId!);
+                if (widget.lote != null) {
+                  loteController.updateLote(
+                      widget.lote!.id!,
+                      int.parse(widget.quantityMinimumController.text),
+                      int.parse(widget.quantityCurrentController.text),
+                      double.parse(widget.purchasePriceController.text),
+                      widget.lote!.productId!,
+                      widget.expirationDate!);
+                } else {
+                  loteController.createLote(
+                      int.parse(widget.quantityMinimumController.text),
+                      int.parse(widget.quantityCurrentController.text),
+                      double.parse(widget.purchasePriceController.text),
+                      widget.expirationDate!,
+                      widget.productId!);
+                }
               }
             },
             child: const Text('Submit'),

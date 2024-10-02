@@ -38,17 +38,22 @@ class LoteController {
     )));
   }
 
-  Future<ActionClient<Lote?>> updateLote(int id, int quantityMinimum,
-      int quantityCurrent, double purchasePrice, int productId) async {
+  Future<ActionClient<Lote?>> updateLote(
+      int id,
+      int quantityMinimum,
+      int quantityCurrent,
+      double purchasePrice,
+      int productId,
+      DateTime expirationDate) async {
     return prisma.lote.update(
         where: LoteWhereUniqueInput(id: id),
         data: PrismaUnion.$1(LoteUpdateInput(
-          quantityMinimum: PrismaUnion.$1(quantityMinimum),
-          quantityCurrent: PrismaUnion.$1(quantityCurrent),
-          purchasePrice: PrismaUnion.$1(purchasePrice),
-          product: ProductUpdateOneRequiredWithoutLotesNestedInput(
-              connect: ProductWhereUniqueInput(id: productId)),
-        )));
+            quantityMinimum: PrismaUnion.$1(quantityMinimum),
+            quantityCurrent: PrismaUnion.$1(quantityCurrent),
+            purchasePrice: PrismaUnion.$1(purchasePrice),
+            product: ProductUpdateOneRequiredWithoutLotesNestedInput(
+                connect: ProductWhereUniqueInput(id: productId)),
+            expirationDate: PrismaUnion.$1(expirationDate))));
   }
 
   Future<ActionClient<Lote?>> deleteLote(int id) async {

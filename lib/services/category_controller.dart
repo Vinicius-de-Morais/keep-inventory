@@ -38,15 +38,18 @@ class CategoryController {
     )));
   }
 
-  Future<ActionClient<ProductCategory?>> updateCategory(
-      int id, String name, String description, int accountId) async {
+  Future<ActionClient<ProductCategory?>> updateCategory(int id, String name,
+      String description, int accountId, int parentId) async {
     return prisma.productCategory.update(
         where: ProductCategoryWhereUniqueInput(id: id),
         data: PrismaUnion.$1(ProductCategoryUpdateInput(
           name: PrismaUnion.$1(name),
           description: PrismaUnion.$1(description),
           account: AccountUpdateOneRequiredWithoutCategoriesNestedInput(
-              connect: AccountWhereUniqueInput(id: accountId)),
+            connect: AccountWhereUniqueInput(id: accountId),
+          ),
+          parent: ProductCategoryUpdateOneWithoutChildrenNestedInput(
+              connect: ProductCategoryWhereUniqueInput(id: parentId)),
         )));
   }
 

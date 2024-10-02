@@ -8,10 +8,10 @@ import 'package:orm/orm.dart';
 
 class ProductCategoryRegisterForm extends StatefulWidget {
   ProductCategoryRegisterForm(
-      {super.key, required this.accountId, this.categoryId});
+      {super.key, required this.accountId, this.category});
 
   final int accountId;
-  final int? categoryId;
+  ProductCategory? category;
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
@@ -43,6 +43,13 @@ class _ProductCategoryRegisterFormState
         .then((cats) {
       setState(() {
         categories = cats.toList();
+
+        if (mounted && widget.category != null) {
+          widget.nameController.text = widget.category!.name ?? "";
+          widget.descriptionController.text =
+              widget.category!.description ?? "";
+          widget.parentId = widget.category!.parent!.id;
+        }
       });
     });
   }
@@ -83,17 +90,26 @@ class _ProductCategoryRegisterFormState
             decoration: const InputDecoration(
               hintText: 'Descrição da categoria',
             ),
-            validator: (value) => this.validateField(value),
+            validator: (value) => validateField(value),
             controller: widget.descriptionController,
           ),
           ElevatedButton(
             onPressed: () {
               if (_formKey.currentState!.validate()) {
-                categoryController.createCategory(
-                    widget.nameController.text,
-                    widget.descriptionController.text,
-                    widget.accountId,
-                    widget.parentId);
+                if (widget.category != null) {
+                  categoryController.updateCategory(
+                      widget.category!.id!,
+                      widget.nameController.text,
+                      widget.descriptionController.text,
+                      widget.accountId,
+                      widget.parentId!);
+                } else {
+                  categoryController.createCategory(
+                      widget.nameController.text,
+                      widget.descriptionController.text,
+                      widget.accountId,
+                      widget.parentId);
+                }
               }
             },
             child: const Text('Submit'),

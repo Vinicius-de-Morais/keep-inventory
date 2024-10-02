@@ -176,6 +176,15 @@ class ProductListViewState extends State<ProductListView> {
                           );
                         },
                       ),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => FormRender(
+                                    form: ProductRegisterForm(
+                                        accountId: 1, product: p),
+                                    title: "Editar Produto")));
+                      },
                     );
                   },
                 ),
