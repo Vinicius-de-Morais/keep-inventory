@@ -30,18 +30,32 @@ class _LoteFormState extends State<LoteForm> {
   final LoteController loteController = LoteController();
 
   _LoteFormState() {
-    setState(() {
-      if (mounted && widget.lote != null) {
-        widget.quantityMinimumController.text =
-            widget.lote!.quantityMinimum.toString();
-        widget.quantityCurrentController.text =
-            widget.lote!.quantityCurrent.toString();
-        widget.purchasePriceController.text =
-            widget.lote!.purchasePrice.toString();
-        widget.expirationDate = widget.lote!.expirationDate;
-        widget.productId = widget.lote!.product!.id;
-      }
-    });
+    // setState(() {
+    //   if (mounted && widget.lote != null) {
+    //     widget.quantityMinimumController.text =
+    //         widget.lote!.quantityMinimum.toString();
+    //     widget.quantityCurrentController.text =
+    //         widget.lote!.quantityCurrent.toString();
+    //     widget.purchasePriceController.text =
+    //         widget.lote!.purchasePrice.toString();
+    //     //widget.expirationDate = widget.lote!.expirationDate;
+    //     widget.productId = widget.lote!.product!.id;
+    //   }
+    // });
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: widget.expirationDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (pickedDate != null && pickedDate != widget.expirationDate) {
+      setState(() {
+        widget.expirationDate = pickedDate;
+      });
+    }
   }
 
   @override
@@ -82,11 +96,22 @@ class _LoteFormState extends State<LoteForm> {
             validator: (value) => this.validateField(value),
             controller: widget.quantityCurrentController,
           ),
-          InputDatePickerFormField(
-            firstDate: DateTime.now(),
-            lastDate: DateTime.now(),
-            onDateSaved: (value) {
-              widget.expirationDate = value;
+          TextFormField(
+            decoration: const InputDecoration(
+              hintText: 'Expiration Date',
+            ),
+            readOnly: true,
+            onTap: () => _selectDate(context),
+            controller: TextEditingController(
+              text: widget.expirationDate != null
+                  ? "${widget.expirationDate!.toLocal()}".split(' ')[0]
+                  : '',
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor, selecione uma data de expiração';
+              }
+              return null;
             },
           ),
           ElevatedButton(
