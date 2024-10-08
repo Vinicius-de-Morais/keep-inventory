@@ -98,7 +98,14 @@ class _LoteFormState extends State<LoteForm> {
           ),
           TextFormField(
             decoration: const InputDecoration(
-              hintText: 'Expiration Date',
+              hintText: 'Valor do lote',
+            ),
+            validator: (value) => this.validateField(value),
+            controller: widget.purchasePriceController,
+          ),
+          TextFormField(
+            decoration: const InputDecoration(
+              hintText: 'Data de expiração',
             ),
             readOnly: true,
             onTap: () => _selectDate(context),
