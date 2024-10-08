@@ -7,6 +7,7 @@ import 'package:keep_inventory/utils/list_space_gap.dart';
 import 'package:keep_inventory/widgets/category_register_form.dart';
 import 'package:keep_inventory/widgets/form_render.dart';
 import 'package:orm/orm.dart';
+import 'package:confirm_dialog/confirm_dialog.dart';
 
 class CategoryListView extends StatefulWidget {
   const CategoryListView({super.key});
@@ -92,6 +93,18 @@ class CategoryListViewState extends State<CategoryListView> {
                               onPressed: () {
                                 // redirecionar ao update form
                                 // então dar refresh
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => FormRender(
+                                          form: ProductCategoryRegisterForm(
+                                            accountId: 1,
+                                            category: c,
+                                          ),
+                                          title: "Editar Categoria")),
+                                ).then((_) {
+                                  refresh();
+                                });
                               }),
                           MenuItemButton(
                             child: Row(
@@ -100,7 +113,12 @@ class CategoryListViewState extends State<CategoryListView> {
                                 const Text("Apagar")
                               ].withSpaceBetween(width: 16),
                             ),
-                            onPressed: () {
+                            onPressed: () async {
+                              if (!await confirm(context,
+                                  content: const Text("Apagar mesmo?"))) {
+                                return;
+                              }
+
                               deleteSelected(c.id!);
                             },
                           ),
@@ -118,20 +136,6 @@ class CategoryListViewState extends State<CategoryListView> {
                               });
                         },
                       ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => FormRender(
-                                  form: ProductCategoryRegisterForm(
-                                    accountId: 1,
-                                    category: c,
-                                  ),
-                                  title: "Editar Categoria")),
-                        ).then((_) {
-                          refresh();
-                        });
-                      },
                     );
                   },
                 ),

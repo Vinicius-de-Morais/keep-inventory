@@ -46,3 +46,5 @@ app.*.map.json
 /prisma/dev.db
 /prisma/dev.db-journal
 
+.MACACO
+

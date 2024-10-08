@@ -1,3 +1,4 @@
+import 'package:confirm_dialog/confirm_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
@@ -185,7 +186,12 @@ class LoteListViewState extends State<LoteListView> {
                                 const Text("Apagar")
                               ].withSpaceBetween(width: 16),
                             ),
-                            onPressed: () {
+                            onPressed: () async {
+                              if (!await confirm(context,
+                                  content: const Text("Apagar mesmo?"))) {
+                                return;
+                              }
+
                               deleteSelected(l.id!);
                             },
                           ),

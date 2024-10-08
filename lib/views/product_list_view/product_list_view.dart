@@ -1,3 +1,4 @@
+import 'package:confirm_dialog/confirm_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
@@ -149,7 +150,15 @@ class ProductListViewState extends State<ProductListView> {
                                   const Text("Editar"),
                                 ].withSpaceBetween(width: 16),
                               ),
-                              onPressed: () {}),
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => FormRender(
+                                            form: ProductRegisterForm(
+                                                accountId: 1, product: p),
+                                            title: "Editar Produto")));
+                              }),
                           MenuItemButton(
                             child: Row(
                               children: [
@@ -157,7 +166,12 @@ class ProductListViewState extends State<ProductListView> {
                                 const Text("Apagar")
                               ].withSpaceBetween(width: 16),
                             ),
-                            onPressed: () {
+                            onPressed: () async {
+                              if (!await confirm(context,
+                                  content: const Text("Apagar mesmo?"))) {
+                                return;
+                              }
+
                               deleteSelected(p.id!);
                             },
                           ),
@@ -176,15 +190,6 @@ class ProductListViewState extends State<ProductListView> {
                           );
                         },
                       ),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => FormRender(
-                                    form: ProductRegisterForm(
-                                        accountId: 1, product: p),
-                                    title: "Editar Produto")));
-                      },
                     );
                   },
                 ),
