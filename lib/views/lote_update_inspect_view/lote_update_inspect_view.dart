@@ -1,9 +1,12 @@
+import 'package:confirm_dialog/confirm_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
 import 'package:keep_inventory/prisma.dart';
 import 'package:keep_inventory/services/lote_controller.dart';
 import 'package:keep_inventory/utils/list_space_gap.dart';
+import 'package:keep_inventory/widgets/form_render.dart';
+import 'package:keep_inventory/widgets/loteupdate_register_form.dart';
 import 'package:orm/orm.dart';
 
 class LoteUpdateInspectView extends StatefulWidget {
@@ -24,6 +27,10 @@ class LoteUpdateInspectViewState extends State<LoteUpdateInspectView> {
   void initState() {
     super.initState();
 
+    refreshLotes();
+  }
+
+  void refreshLotes() {
     prisma.lote
         .findFirstOrThrow(
             where: LoteWhereInput(
@@ -45,6 +52,14 @@ class LoteUpdateInspectViewState extends State<LoteUpdateInspectView> {
       setState(() {
         loteUpdates = loaded.where((t) => t.lote?.id == widget.loteId).toList();
       });
+    });
+  }
+
+  void deleteGuy(LoteUpdates loteUpdates) {
+    prisma.loteUpdates
+        .delete(where: LoteUpdatesWhereUniqueInput(id: loteUpdates.id))
+        .then((gordon) {
+      refreshLotes();
     });
   }
 
@@ -75,7 +90,20 @@ class LoteUpdateInspectViewState extends State<LoteUpdateInspectView> {
                           children: [
                             const Expanded(child: Text("Movimentações")),
                             ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => FormRender(
+                                            form: LoteUpdatesRegisterForm(
+                                              lotePertencente: lote!,
+                                              oldLoteUpdate: null,
+                                            ),
+                                            title: "Criar nova movimentação")),
+                                  ).then((_) {
+                                    refreshLotes();
+                                  });
+                                },
                                 child: const Text("Adicionar"))
                           ],
                         ),
@@ -89,22 +117,75 @@ class LoteUpdateInspectViewState extends State<LoteUpdateInspectView> {
                           LoteUpdates upd = loteUpdates[index];
 
                           String subtitle = [
-                            "Delta: ${upd.quantityDelta ?? 0}",
                             upd.updateTime!.toIso8601String(),
                           ].join("\n");
 
                           Widget delta = upd.quantityDelta! < 0
-                              ? Text("${upd.quantityDelta!}",
+                              ? Text(
+                                  "${upd.quantityDelta!.toString().replaceFirst('-', 'Removidos ')} un.",
                                   style: TextStyle(
-                                      color: Colors.red, fontSize: 24))
-                              : Text("+${upd.quantityDelta!}",
+                                      color: Colors.red, fontSize: 18))
+                              : Text("Adicionados ${upd.quantityDelta!} un.",
                                   style: TextStyle(
-                                      color: Colors.green, fontSize: 24));
+                                      color: Colors.green, fontSize: 18));
 
                           return ListTile(
-                            title: const Text("A"),
+                            title: delta,
                             subtitle: Text(subtitle),
-                            trailing: delta,
+                            trailing: MenuAnchor(
+                              menuChildren: <Widget>[
+                                MenuItemButton(
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.edit),
+                                        const Text("Editar"),
+                                      ].withSpaceBetween(width: 16),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => FormRender(
+                                                form: LoteUpdatesRegisterForm(
+                                                  lotePertencente: lote!,
+                                                  oldLoteUpdate: upd,
+                                                ),
+                                                title:
+                                                    "Atualizar movimentação")),
+                                      ).then((_) {
+                                        refreshLotes();
+                                      });
+                                    }),
+                                MenuItemButton(
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.delete),
+                                      const Text("Apagar")
+                                    ].withSpaceBetween(width: 16),
+                                  ),
+                                  onPressed: () async {
+                                    if (!await confirm(context,
+                                        content: const Text("Apagar mesmo?"))) {
+                                      return;
+                                    }
+
+                                    deleteGuy(upd);
+                                  },
+                                ),
+                              ],
+                              builder: (BuildContext context,
+                                  MenuController controller, Widget? child) {
+                                return IconButton(
+                                    icon: const Icon(Icons.more_vert),
+                                    onPressed: () {
+                                      if (controller.isOpen) {
+                                        controller.close();
+                                      } else {
+                                        controller.open();
+                                      }
+                                    });
+                              },
+                            ),
                           );
                         },
                       ),
