@@ -178,7 +178,20 @@ class LoteListViewState extends State<LoteListView> {
                                   const Text("Editar"),
                                 ].withSpaceBetween(width: 16),
                               ),
-                              onPressed: () {}),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => FormRender(
+                                          form: LoteForm(
+                                            accountId: 1,
+                                            lote: l,
+                                          ),
+                                          title: "Editar Lote")),
+                                ).then((_) {
+                                  refresh();
+                                });
+                              }),
                           MenuItemButton(
                             child: Row(
                               children: [

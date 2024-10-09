@@ -10,15 +10,15 @@ class LoteForm extends StatefulWidget {
   final int accountId;
   Lote? lote;
 
+  DateTime? expirationDate;
+
+  int? productId;
+
   final TextEditingController quantityMinimumController =
       TextEditingController();
   final TextEditingController quantityCurrentController =
       TextEditingController();
   final TextEditingController purchasePriceController = TextEditingController();
-
-  DateTime? expirationDate;
-
-  int? productId;
 
   @override
   _LoteFormState createState() => _LoteFormState();
@@ -30,18 +30,16 @@ class _LoteFormState extends State<LoteForm> {
   final LoteController loteController = LoteController();
 
   _LoteFormState() {
-    // setState(() {
-    //   if (mounted && widget.lote != null) {
-    //     widget.quantityMinimumController.text =
-    //         widget.lote!.quantityMinimum.toString();
-    //     widget.quantityCurrentController.text =
-    //         widget.lote!.quantityCurrent.toString();
-    //     widget.purchasePriceController.text =
-    //         widget.lote!.purchasePrice.toString();
-    //     //widget.expirationDate = widget.lote!.expirationDate;
-    //     widget.productId = widget.lote!.product!.id;
-    //   }
-    // });
+    if (mounted && widget.lote != null) {
+      widget.quantityMinimumController.text =
+          widget.lote!.quantityMinimum.toString();
+      widget.quantityCurrentController.text =
+          widget.lote!.quantityCurrent.toString();
+      widget.purchasePriceController.text =
+          widget.lote!.purchasePrice.toString();
+      widget.expirationDate = widget.lote!.expirationDate;
+      widget.productId = widget.lote!.product!.id;
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -60,6 +58,8 @@ class _LoteFormState extends State<LoteForm> {
 
   @override
   Widget build(BuildContext context) {
+    if (!mounted) return Container();
+
     return Form(
       key: _formKey,
       child: Column(

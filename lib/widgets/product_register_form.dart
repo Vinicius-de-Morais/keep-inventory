@@ -26,6 +26,8 @@ class _ProductRegisterFormState extends State<ProductRegisterForm> {
   final ProductController productController = ProductController();
 
   _ProductRegisterFormState() {
+    widget.createState();
+
     if (mounted && widget.product != null) {
       widget.nameController.text = widget.product!.name ?? "";
       widget.descriptionController.text = widget.product!.description ?? "";
