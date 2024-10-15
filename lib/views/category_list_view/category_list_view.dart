@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:keep_inventory/GLOBAL.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
 import 'package:keep_inventory/prisma.dart';
@@ -98,7 +99,8 @@ class CategoryListViewState extends State<CategoryListView> {
                                   MaterialPageRoute(
                                       builder: (context) => FormRender(
                                           form: ProductCategoryRegisterForm(
-                                            accountId: 1,
+                                            accountId: GLOBAL_KKKK
+                                                .grupoSelecionado!.id!,
                                             category: c,
                                           ),
                                           title: "Editar Categoria")),
@@ -150,7 +152,8 @@ class CategoryListViewState extends State<CategoryListView> {
               context,
               MaterialPageRoute(
                 builder: (context) => FormRender(
-                    form: ProductCategoryRegisterForm(accountId: 1),
+                    form: ProductCategoryRegisterForm(
+                        accountId: GLOBAL_KKKK.grupoSelecionado!.id!),
                     title: "Nova Categoria"),
               ),
             ).then((_) {

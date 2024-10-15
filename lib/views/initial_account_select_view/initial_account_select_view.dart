@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:keep_inventory/GLOBAL.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/services/account_controller.dart';
 import 'package:keep_inventory/utils/list_space_gap.dart';
@@ -60,7 +61,9 @@ class _InitialAccountSelectViewState extends State<InitialAccountSelectView> {
                                 title: account.name!,
                                 description: account.description,
                                 icon: Icon(Icons.arrow_forward),
-                                onTap: () {},
+                                onTap: () {
+                                  GLOBAL_KKKK.grupoSelecionado = account;
+                                },
                               );
                             }),
                             SizedBox(height: 16),

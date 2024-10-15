@@ -1,5 +1,6 @@
 import 'package:confirm_dialog/confirm_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:keep_inventory/GLOBAL.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
 import 'package:keep_inventory/prisma.dart';
@@ -32,6 +33,8 @@ class ProductListViewState extends State<ProductListView> {
         category: PrismaUnion.$1(true),
         lotes: PrismaUnion.$1(true),
       ),
+      where: ProductWhereInput(
+          accountId: PrismaUnion.$2(GLOBAL_KKKK.grupoSelecionado?.id ?? 1)),
     )
         .then((loaded) {
       setState(() {
@@ -156,7 +159,9 @@ class ProductListViewState extends State<ProductListView> {
                                     MaterialPageRoute(
                                         builder: (context) => FormRender(
                                             form: ProductRegisterForm(
-                                                accountId: 1, product: p),
+                                                accountId: GLOBAL_KKKK
+                                                    .grupoSelecionado!.id!,
+                                                product: p),
                                             title: "Editar Produto")));
                               }),
                           MenuItemButton(
@@ -205,7 +210,7 @@ class ProductListViewState extends State<ProductListView> {
               MaterialPageRoute(
                 builder: (context) => FormRender(
                     form: ProductRegisterForm(
-                      accountId: 1,
+                      accountId: GLOBAL_KKKK.grupoSelecionado!.id!,
                     ),
                     title: "Cadastrar Produto"),
               ),

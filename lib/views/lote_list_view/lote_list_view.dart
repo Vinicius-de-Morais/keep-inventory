@@ -1,6 +1,7 @@
 import 'package:confirm_dialog/confirm_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:keep_inventory/GLOBAL.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
 import 'package:keep_inventory/prisma.dart';
@@ -184,7 +185,8 @@ class LoteListViewState extends State<LoteListView> {
                                   MaterialPageRoute(
                                       builder: (context) => FormRender(
                                           form: LoteForm(
-                                            accountId: 1,
+                                            accountId: GLOBAL_KKKK
+                                                .grupoSelecionado!.id!,
                                             lote: l,
                                           ),
                                           title: "Editar Lote")),
@@ -238,7 +240,7 @@ class LoteListViewState extends State<LoteListView> {
               MaterialPageRoute(
                 builder: (context) => FormRender(
                   form: LoteForm(
-                    accountId: 1,
+                    accountId: GLOBAL_KKKK.grupoSelecionado!.id!,
                   ),
                   title: "Cadastrar Lote",
                 ),
