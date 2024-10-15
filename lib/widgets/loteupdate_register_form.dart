@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
 import 'package:keep_inventory/prisma.dart';
@@ -108,11 +109,16 @@ class _LoteUpdatesRegisterFormState extends State<LoteUpdatesRegisterForm> {
                       widget.lotePertencente.id!,
                       valorMovementacao,
                       0) /* preço de venda do lote????????????? TODO */;
+
+                  Fluttertoast.showToast(
+                      msg: "Movimentação do lote atualizada");
                 } else {
                   loteUpdatesController.createLoteUpdates(
                       widget.lotePertencente.id!,
                       valorMovementacao,
                       0 /* TODO TAMBEM */);
+
+                  Fluttertoast.showToast(msg: "Movimentação do lote criada");
                 }
 
                 Navigator.pop(context);

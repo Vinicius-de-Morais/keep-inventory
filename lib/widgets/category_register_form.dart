@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
 import 'package:keep_inventory/prisma.dart';
@@ -103,12 +104,16 @@ class _ProductCategoryRegisterFormState
                       widget.descriptionController.text,
                       widget.accountId,
                       widget.parentId!);
+
+                  Fluttertoast.showToast(msg: "Categoria atualizada");
                 } else {
                   categoryController.createCategory(
                       widget.nameController.text,
                       widget.descriptionController.text,
                       widget.accountId,
                       widget.parentId);
+
+                  Fluttertoast.showToast(msg: "Categoria criada");
                 }
               }
             },

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/prisma.dart';
 import 'package:keep_inventory/services/lote_controller.dart';
@@ -100,7 +101,13 @@ class _LoteFormState extends State<LoteForm> {
             decoration: const InputDecoration(
               hintText: 'Valor do lote',
             ),
-            validator: (value) => this.validateField(value),
+            validator: (value) {
+              if (double.tryParse(value ?? "") == null) {
+                return "Valor não é um número válido";
+              }
+
+              return this.validateField(value);
+            },
             controller: widget.purchasePriceController,
           ),
           TextFormField(
@@ -132,6 +139,8 @@ class _LoteFormState extends State<LoteForm> {
                       double.parse(widget.purchasePriceController.text),
                       widget.lote!.productId!,
                       widget.expirationDate!);
+
+                  Fluttertoast.showToast(msg: "Lote atualizado");
                 } else {
                   loteController.createLote(
                       int.parse(widget.quantityMinimumController.text),
@@ -139,6 +148,8 @@ class _LoteFormState extends State<LoteForm> {
                       double.parse(widget.purchasePriceController.text),
                       widget.expirationDate!,
                       widget.productId!);
+
+                  Fluttertoast.showToast(msg: "Lote criado");
                 }
               }
             },

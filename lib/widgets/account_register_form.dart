@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/services/account_controller.dart';
 
@@ -61,6 +62,8 @@ class _AccountRegisterFormState extends State<AccountRegisterForm> {
                         widget.nameController.text,
                         widget.usernameController.text,
                         widget.descriptionController.text);
+
+                    Fluttertoast.showToast(msg: "Grupo criado");
                   }
                 },
                 child: const Text('Submit'),

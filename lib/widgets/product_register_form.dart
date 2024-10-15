@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/prisma.dart';
 import 'package:keep_inventory/services/product_controller.dart';
@@ -10,12 +11,6 @@ class ProductRegisterForm extends StatefulWidget {
   final int accountId;
   Product? product;
 
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
-  final TextEditingController barcodeController = TextEditingController();
-
-  int? category;
-
   @override
   _ProductRegisterFormState createState() => _ProductRegisterFormState();
 }
@@ -23,17 +18,43 @@ class ProductRegisterForm extends StatefulWidget {
 class _ProductRegisterFormState extends State<ProductRegisterForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  // tirar essas porras do widget e botar aqui no state
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController barcodeController = TextEditingController();
+  int? category;
+
   final ProductController productController = ProductController();
 
-  _ProductRegisterFormState() {
-    widget.createState();
+  List<ProductCategory>? productCategories;
 
-    if (mounted && widget.product != null) {
-      widget.nameController.text = widget.product!.name ?? "";
-      widget.descriptionController.text = widget.product!.description ?? "";
-      widget.barcodeController.text = widget.product!.barcodeContent ?? "";
-      widget.category = widget.product!.category!.id;
-    }
+  _ProductRegisterFormState() {}
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  void loadData() {
+    setState(() {
+      productCategories = null;
+
+      prisma.productCategory.findMany().then((value) {
+        print("HAHAHAH AHAAHAH HAHAH A");
+        print(value);
+
+        setState(() {
+          productCategories = value.toList();
+          if (widget.product != null) {
+            nameController.text = widget.product!.name ?? "";
+            descriptionController.text = widget.product!.description ?? "";
+            barcodeController.text = widget.product!.barcodeContent ?? "";
+            category = widget.product!.category!.id;
+          }
+        });
+      });
+    });
   }
 
   @override
@@ -48,39 +69,37 @@ class _ProductRegisterFormState extends State<ProductRegisterForm> {
               hintText: 'Nome do Produto',
             ),
             validator: (value) => this.validateField(value),
-            controller: widget.nameController,
+            controller: nameController,
           ),
-          FutureBuilder(
-              future: prisma.productCategory.findMany(),
-              //categoryController.getCategories(),
-              builder: (context, itemdata) {
-                if (itemdata.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else {
-                  return DropdownButtonFormField(
-                    decoration: const InputDecoration(
-                      hintText: "Selecione a categoria",
-                    ),
-                    items: this.filterCategory(itemdata.data!),
-                    onChanged: (value) {
-                      widget.category = int.parse(value!);
-                    },
-                  );
-                }
-              }),
+          // faço isso em react toda hora
+          (() {
+            if (productCategories == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            return DropdownButtonFormField(
+              decoration: const InputDecoration(
+                hintText: "Selecione a categoria",
+              ),
+              items: filterCategory(productCategories!),
+              onChanged: (value) {
+                category = int.parse(value!);
+              },
+            );
+          })(),
           TextFormField(
             decoration: const InputDecoration(
               hintText: 'Descrição do Produto',
             ),
             validator: (value) => this.validateField(value),
-            controller: widget.descriptionController,
+            controller: descriptionController,
           ),
           TextFormField(
             decoration: const InputDecoration(
               hintText: 'Codigo de barras',
             ),
             validator: (value) => this.validateField(value),
-            controller: widget.barcodeController,
+            controller: barcodeController,
           ),
           ElevatedButton(
             onPressed: () {
@@ -88,17 +107,21 @@ class _ProductRegisterFormState extends State<ProductRegisterForm> {
                 if (widget.product != null) {
                   productController.updateProduct(
                       widget.product!.id!,
-                      widget.nameController.text,
-                      widget.descriptionController.text,
-                      widget.barcodeController.text,
-                      widget.category!);
+                      nameController.text,
+                      descriptionController.text,
+                      barcodeController.text,
+                      category!);
+
+                  Fluttertoast.showToast(msg: "Produto atualizado");
                 } else {
                   productController.createProduct(
-                      widget.nameController.text,
-                      widget.descriptionController.text,
-                      widget.barcodeController.text,
+                      nameController.text,
+                      descriptionController.text,
+                      barcodeController.text,
                       widget.accountId,
-                      widget.category!);
+                      category!);
+
+                  Fluttertoast.showToast(msg: "Produto criado");
                 }
               }
             },
