@@ -59,7 +59,11 @@ class _ProductRegisterFormState extends State<ProductRegisterForm> {
 
   @override
   Widget build(BuildContext context) {
+    final NavigatorState routeNavigator =
+        Navigator.of(context, rootNavigator: true);
+
     return Form(
+      canPop: true,
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -123,6 +127,8 @@ class _ProductRegisterFormState extends State<ProductRegisterForm> {
 
                   Fluttertoast.showToast(msg: "Produto criado");
                 }
+
+                routeNavigator.pop();
               }
             },
             child: const Text('Submit'),

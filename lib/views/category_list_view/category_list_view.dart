@@ -44,123 +44,122 @@ class CategoryListViewState extends State<CategoryListView> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text('Lista de Categorias'),
-        ),
-        body: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    const TextField(
-                      decoration: InputDecoration(
-                        border: UnderlineInputBorder(),
-                        labelText: 'Pesquisar...',
-                      ),
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: true,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Lista de Categorias'),
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  const TextField(
+                    decoration: InputDecoration(
+                      border: UnderlineInputBorder(),
+                      labelText: 'Pesquisar...',
                     ),
-                  ].withSpaceBetween(height: 8),
-                ),
+                  ),
+                ].withSpaceBetween(height: 8),
               ),
-              Expanded(
-                child: ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemCount: categories.length,
-                  cacheExtent: 0,
-                  itemBuilder: (context, index) {
-                    ProductCategory c = categories[index];
+            ),
+            Expanded(
+              child: ListView.builder(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                itemCount: categories.length,
+                cacheExtent: 0,
+                itemBuilder: (context, index) {
+                  ProductCategory c = categories[index];
 
-                    String name = c.name ?? "Sem nome";
-                    String desc = c.description ?? "Sem descrição";
-                    String parentName = c.parent?.name ?? "Categoria raíz";
+                  String name = c.name ?? "Sem nome";
+                  String desc = c.description ?? "Sem descrição";
+                  String parentName = c.parent?.name ?? "Categoria raíz";
 
-                    return ListTile(
-                      title: Text(name),
-                      subtitle: Text([desc, parentName].join("\n")),
-                      trailing: MenuAnchor(
-                        menuChildren: <Widget>[
-                          MenuItemButton(
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.edit),
-                                  const Text("Editar"),
-                                ].withSpaceBetween(width: 16),
-                              ),
-                              onPressed: () {
-                                // redirecionar ao update form
-                                // então dar refresh
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => FormRender(
-                                          form: ProductCategoryRegisterForm(
-                                            accountId: GLOBAL_KKKK
-                                                .grupoSelecionado!.id!,
-                                            category: c,
-                                          ),
-                                          title: "Editar Categoria")),
-                                ).then((_) {
-                                  refresh();
-                                });
-                              }),
-                          MenuItemButton(
+                  return ListTile(
+                    title: Text(name),
+                    subtitle: Text([desc, parentName].join("\n")),
+                    trailing: MenuAnchor(
+                      menuChildren: <Widget>[
+                        MenuItemButton(
                             child: Row(
                               children: [
-                                const Icon(Icons.delete),
-                                const Text("Apagar")
+                                const Icon(Icons.edit),
+                                const Text("Editar"),
                               ].withSpaceBetween(width: 16),
                             ),
-                            onPressed: () async {
-                              if (!await confirm(context,
-                                  content: const Text("Apagar mesmo?"))) {
-                                return;
-                              }
-
-                              deleteSelected(c.id!);
-                            },
-                          ),
-                        ],
-                        builder: (BuildContext context,
-                            MenuController controller, Widget? child) {
-                          return IconButton(
-                              icon: const Icon(Icons.more_vert),
-                              onPressed: () {
-                                if (controller.isOpen) {
-                                  controller.close();
-                                } else {
-                                  controller.open();
-                                }
+                            onPressed: () {
+                              // redirecionar ao update form
+                              // então dar refresh
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => FormRender(
+                                        form: ProductCategoryRegisterForm(
+                                          accountId: GLOBAL_STATE
+                                              .grupoSelecionado!.id!,
+                                          category: c,
+                                        ),
+                                        title: "Editar Categoria")),
+                              ).then((_) {
+                                refresh();
                               });
-                        },
-                      ),
-                    );
-                  },
-                ),
+                            }),
+                        MenuItemButton(
+                          child: Row(
+                            children: [
+                              const Icon(Icons.delete),
+                              const Text("Apagar")
+                            ].withSpaceBetween(width: 16),
+                          ),
+                          onPressed: () async {
+                            if (!await confirm(context,
+                                content: const Text("Apagar mesmo?"))) {
+                              return;
+                            }
+
+                            deleteSelected(c.id!);
+                          },
+                        ),
+                      ],
+                      builder: (BuildContext context, MenuController controller,
+                          Widget? child) {
+                        return IconButton(
+                            icon: const Icon(Icons.more_vert),
+                            onPressed: () {
+                              if (controller.isOpen) {
+                                controller.close();
+                              } else {
+                                controller.open();
+                              }
+                            });
+                      },
+                    ),
+                  );
+                },
               ),
-            ].withSpaceBetween(height: 8),
-          ),
+            ),
+          ].withSpaceBetween(height: 8),
         ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => FormRender(
-                    form: ProductCategoryRegisterForm(
-                        accountId: GLOBAL_KKKK.grupoSelecionado!.id!),
-                    title: "Nova Categoria"),
-              ),
-            ).then((_) {
-              refresh();
-            });
-          },
-        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FormRender(
+                  form: ProductCategoryRegisterForm(
+                      accountId: GLOBAL_STATE.grupoSelecionado!.id!),
+                  title: "Nova Categoria"),
+            ),
+          ).then((_) {
+            refresh();
+          });
+        },
       ),
     );
   }
