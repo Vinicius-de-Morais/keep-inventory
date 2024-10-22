@@ -51,11 +51,11 @@ class ProductListViewState extends State<ProductListView> {
             where: LoteWhereInput(productId: PrismaUnion.$2(productId))))
         .toList();
 
-    List<LoteUpdates> lotesUpdatesOfProduct =
-        (await prisma.loteUpdates.findMany())
-            .where((movimentacao) =>
-                lotesOfProduct.any((lote) => movimentacao.lote?.id == lote.id))
-            .toList();
+    List<LoteUpdates> lotesUpdatesOfProduct = (await prisma.loteUpdates
+            .findMany(include: LoteUpdatesInclude(lote: PrismaUnion.$1(true))))
+        .where((movimentacao) =>
+            lotesOfProduct.any((lote) => movimentacao.lote?.id == lote.id))
+        .toList();
 
 /*
     List<ShoppingList> shoppingListsOfProduct =
@@ -115,6 +115,8 @@ class ProductListViewState extends State<ProductListView> {
           id: productId, // Ensure this is an integer as required
         ),
       );*/
+
+    refresh();
   }
 
   @override
