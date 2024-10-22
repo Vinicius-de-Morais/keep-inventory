@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:confirm_dialog/confirm_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:keep_inventory/GLOBAL.dart';
@@ -5,11 +7,17 @@ import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
 import 'package:keep_inventory/prisma.dart';
 import 'package:keep_inventory/services/product_controller.dart';
+import 'package:keep_inventory/utils/async_list_filter.dart';
+import 'package:keep_inventory/utils/calc_stock_from_movimentations.dart';
 import 'package:keep_inventory/utils/list_space_gap.dart';
 import 'package:keep_inventory/views/lote_list_view/lote_list_view.dart';
 import 'package:keep_inventory/widgets/form_render.dart';
 import 'package:keep_inventory/widgets/product_register_form.dart';
 import 'package:orm/orm.dart';
+
+enum ProductFilter { All, OnlyEmptyStocks }
+
+enum ProductOrdering { Alphabetical, ByStockCount }
 
 class ProductListView extends StatefulWidget {
   const ProductListView({super.key});
@@ -22,13 +30,15 @@ class ProductListViewState extends State<ProductListView> {
   List<Product> products = [];
   ProductController productcontroller = ProductController();
 
+  ProductFilter currentFilter = ProductFilter.All;
+  ProductOrdering currentSort = ProductOrdering.Alphabetical;
+
   ProductListViewState() {
     refresh();
   }
 
-  void refresh() {
-    prisma.product
-        .findMany(
+  void refresh() async {
+    Iterable<Product> loadedProducts = await prisma.product.findMany(
       include: const ProductInclude(
         account: PrismaUnion.$1(true),
         category: PrismaUnion.$1(true),
@@ -36,11 +46,32 @@ class ProductListViewState extends State<ProductListView> {
       ),
       where: ProductWhereInput(
           accountId: PrismaUnion.$2(GLOBAL_STATE.grupoSelecionado?.id ?? 1)),
-    )
-        .then((loaded) {
-      setState(() {
-        products = loaded.toList();
-      });
+    );
+
+    loadedProducts = await asyncListFilter(loadedProducts, (test) async {
+      if (currentFilter == ProductFilter.All) return true;
+
+      // Busca O(n²) para dar uma emoção
+      if (currentFilter == ProductFilter.OnlyEmptyStocks) {
+        var lotesOfProduct = await prisma.lote.findMany(
+            where: LoteWhereInput(productId: PrismaUnion.$2(test.id!)));
+
+        for (var lote in lotesOfProduct) {
+          if (await calcStockCountFromMovimentations(lote.id!) != 0) {
+            // estoque não-vazio, não incluir na listagem
+            return false;
+          }
+        }
+
+        return true;
+      }
+
+      // filtro de estoque desconhecido
+      return true;
+    });
+
+    setState(() {
+      products = loadedProducts.toList();
     });
   }
 
@@ -161,10 +192,24 @@ class ProductListViewState extends State<ProductListView> {
                               ));
                         },
                         menuChildren: <Widget>[
-                          const MenuItemButton(
-                              child: Text("Todos os produtos")),
-                          const MenuItemButton(
-                              child: Text("Apenas com estoque vazio")),
+                          MenuItemButton(
+                            child: const Text("Todos os produtos"),
+                            onPressed: () {
+                              setState(() {
+                                currentFilter = ProductFilter.All;
+                                refresh();
+                              });
+                            },
+                          ),
+                          MenuItemButton(
+                            child: Text("Apenas com estoque vazio"),
+                            onPressed: () {
+                              setState(() {
+                                currentFilter = ProductFilter.OnlyEmptyStocks;
+                                refresh();
+                              });
+                            },
+                          ),
                         ],
                       ),
                       const SizedBox(width: 8),

@@ -41,9 +41,6 @@ class _ProductRegisterFormState extends State<ProductRegisterForm> {
       productCategories = null;
 
       prisma.productCategory.findMany().then((value) {
-        print("HAHAHAH AHAAHAH HAHAH A");
-        print(value);
-
         setState(() {
           productCategories = value.toList();
           if (widget.product != null) {
