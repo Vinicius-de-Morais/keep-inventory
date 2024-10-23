@@ -6,6 +6,8 @@ import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
 import 'package:keep_inventory/prisma.dart';
 import 'package:keep_inventory/services/lote_controller.dart';
+import 'package:keep_inventory/utils/async_list_filter.dart';
+import 'package:keep_inventory/utils/calc_stock_from_movimentations.dart';
 import 'package:keep_inventory/utils/list_space_gap.dart';
 import 'package:keep_inventory/views/lote_update_inspect_view/lote_update_inspect_view.dart';
 import 'package:keep_inventory/widgets/form_render.dart';
@@ -13,10 +15,14 @@ import 'package:keep_inventory/widgets/lote_register_form.dart';
 import 'package:keep_inventory/widgets/product_register_form.dart';
 import 'package:orm/orm.dart';
 
+enum LoteFilter { All, OnlyEmptyLotes }
+
+enum LoteOrdering { Alphabetical, ByLoteCount }
+
 class LoteListView extends StatefulWidget {
   const LoteListView({super.key, required this.productFilter});
 
-  final Product productFilter;
+  final Product? productFilter;
 
   @override
   LoteListViewState createState() => LoteListViewState();
@@ -24,30 +30,80 @@ class LoteListView extends StatefulWidget {
 
 class LoteListViewState extends State<LoteListView> {
   List<Lote> lotes = [];
+  Map<int, int> loteQuantities = {};
   LoteController loteController = LoteController();
+
+  LoteFilter currentFilter = LoteFilter.All;
+  LoteOrdering currentSort = LoteOrdering.Alphabetical;
 
   LoteListViewState() {
     refresh();
   }
 
-  void refresh() {
-    prisma.lote
-        .findMany(
+  void refresh() async {
+    Iterable<Lote> allLotes = await prisma.lote.findMany(
       include: const LoteInclude(
         product: PrismaUnion.$1(true),
         loteUpdates: PrismaUnion.$1(true),
         shoppingList: PrismaUnion.$1(true),
       ),
-    )
-        .then((loaded) {
-      setState(() {
-        lotes = loaded.toList();
-      });
+    );
+
+    loteQuantities.clear();
+    for (var lote in allLotes) {
+      loteQuantities[lote.id!] =
+          await calcStockCountFromMovimentations(lote.id!);
+    }
+
+    allLotes = await asyncListFilter(allLotes, (test) async {
+      if (test.product != null && test.productId != widget.productFilter?.id) {
+        return false;
+      }
+
+      if (currentFilter == LoteFilter.All) return true;
+
+      // Busca O(n²) para dar uma emoção
+      if (currentFilter == LoteFilter.OnlyEmptyLotes) {
+        if (loteQuantities[test.id]! != 0) {
+          // estoque não-vazio, não incluir na listagem
+          return false;
+        }
+
+        return true;
+      }
+
+      // filtro de estoque desconhecido
+      return true;
+    });
+
+    setState(() {
+      lotes = allLotes.toList();
     });
   }
 
-  void deleteSelected(int id) {
-    loteController.deleteLote(id).then((_) {
+  void deleteSelected(Lote loteToDelete) async {
+    List<LoteUpdates> lotesUpdates = (await prisma.loteUpdates.findMany(
+            where: LoteUpdatesWhereInput(
+                lote: PrismaUnion.$2(
+                    LoteWhereInput(id: PrismaUnion.$2(loteToDelete.id!)))),
+            include: LoteUpdatesInclude(lote: PrismaUnion.$1(true))))
+        .toList();
+
+    for (var upd in lotesUpdates) {
+      await prisma.loteUpdates
+          .delete(where: LoteUpdatesWhereUniqueInput(id: upd.id!));
+    }
+
+    await prisma.product.update(
+        data: PrismaUnion.$2(ProductUncheckedUpdateInput(
+            lotes: LoteUncheckedUpdateManyWithoutProductNestedInput(
+                delete: PrismaUnion.$1(
+                    LoteWhereUniqueInput(id: loteToDelete.id!))))),
+        where: ProductWhereUniqueInput(id: loteToDelete.product!.id));
+
+    prisma.lote
+        .delete(where: LoteWhereUniqueInput(id: loteToDelete.id))
+        .then((_) {
       refresh();
     });
   }
@@ -58,7 +114,7 @@ class LoteListViewState extends State<LoteListView> {
       appBar: AppBar(
         automaticallyImplyLeading: true,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Lista de Lotes'),
+        title: Text('Lista de Lotes: ${widget.productFilter?.name ?? ''}'),
       ),
       body: SafeArea(
         child: Column(
@@ -95,8 +151,23 @@ class LoteListViewState extends State<LoteListView> {
                               ));
                         },
                         menuChildren: <Widget>[
-                          const MenuItemButton(child: Text("Todos os lotes")),
-                          const MenuItemButton(child: Text("Apenas vazios")),
+                          MenuItemButton(
+                            child: Text("Todos os lotes"),
+                            onPressed: () {
+                              setState(() {
+                                currentFilter = LoteFilter.All;
+                                refresh();
+                              });
+                            },
+                          ),
+                          MenuItemButton(
+                              child: Text("Apenas vazios"),
+                              onPressed: () {
+                                setState(() {
+                                  currentFilter = LoteFilter.OnlyEmptyLotes;
+                                  refresh();
+                                });
+                              }),
                         ],
                       ),
                       const SizedBox(width: 8),
@@ -145,7 +216,7 @@ class LoteListViewState extends State<LoteListView> {
                       ? "R\$ ${l.purchasePrice!.toStringAsFixed(2)}"
                       : null;
                   int qtdMin = l.quantityMinimum ?? 0;
-                  int qtdCurr = l.quantityCurrent ?? 0;
+                  int qtdCurr = loteQuantities[l.id!] ?? 0;
                   DateTime? expDate = l.expirationDate;
 
                   String subtitle = [
@@ -209,7 +280,7 @@ class LoteListViewState extends State<LoteListView> {
                               return;
                             }
 
-                            deleteSelected(l.id!);
+                            deleteSelected(l);
                           },
                         ),
                       ],
