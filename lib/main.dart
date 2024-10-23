@@ -52,6 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: true,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
@@ -72,16 +73,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () {
                   Navigator.push(
                       context,
-                      CupertinoPageRoute(
+                      MaterialPageRoute(
                           builder: (context) => InitialAccountSelectView()));
                 },
               ),
+              /*
               TextButton(
                   child: Text("Lista de Produtos"),
                   onPressed: () {
                     Navigator.push(
                         context,
-                        CupertinoPageRoute(
+                        MaterialPageRoute(
                             builder: (context) => ProductListView()));
                   }),
               TextButton(
@@ -89,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: () {
                     Navigator.push(
                         context,
-                        CupertinoPageRoute(
+                        MaterialPageRoute(
                             builder: (context) => CategoryListView()));
                   }),
               TextButton(
@@ -97,8 +99,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: () {
                     Navigator.push(
                         context,
-                        CupertinoPageRoute(
+                        MaterialPageRoute(
                             builder: (context) => LoteListView()));
+
                   }),
               TextButton(
                   child: Text("Lista de Compras"),
@@ -112,17 +115,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-          onPressed: () => {
-                Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                      builder: (context) => AccountRegisterForm()),
-                )
-              },
-          tooltip: 'criar conta',
-          child: const Text("Criar conta") //const Icon(Icons.add),
-          ),
     );
   }
 }

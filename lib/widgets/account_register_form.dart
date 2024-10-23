@@ -24,6 +24,7 @@ class _AccountRegisterFormState extends State<AccountRegisterForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: true,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('Criar nova conta'),
       ),
@@ -68,25 +69,6 @@ class _AccountRegisterFormState extends State<AccountRegisterForm> {
                 },
                 child: const Text('Submit'),
               ),
-              Wrap(
-                children: [
-                  FutureBuilder<Iterable<Account>>(
-                    initialData: const Iterable.empty(),
-                    future: accountController.getAccounts(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else {
-                        return snapshot.data!.isNotEmpty
-                            ? listView(snapshot.data!, snapshot.data!.length)
-                            : const Text("Sem contas");
-                      }
-                    },
-                  )
-                ],
-              )
             ],
           ),
         ),

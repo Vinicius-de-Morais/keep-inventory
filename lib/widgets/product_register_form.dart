@@ -41,9 +41,6 @@ class _ProductRegisterFormState extends State<ProductRegisterForm> {
       productCategories = null;
 
       prisma.productCategory.findMany().then((value) {
-        print("HAHAHAH AHAAHAH HAHAH A");
-        print(value);
-
         setState(() {
           productCategories = value.toList();
           if (widget.product != null) {
@@ -59,7 +56,11 @@ class _ProductRegisterFormState extends State<ProductRegisterForm> {
 
   @override
   Widget build(BuildContext context) {
+    final NavigatorState routeNavigator =
+        Navigator.of(context, rootNavigator: true);
+
     return Form(
+      canPop: true,
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -123,6 +124,8 @@ class _ProductRegisterFormState extends State<ProductRegisterForm> {
 
                   Fluttertoast.showToast(msg: "Produto criado");
                 }
+
+                routeNavigator.pop();
               }
             },
             child: const Text('Submit'),
