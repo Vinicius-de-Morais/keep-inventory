@@ -82,30 +82,32 @@ class LoteListViewState extends State<LoteListView> {
   }
 
   void deleteSelected(Lote loteToDelete) async {
-    List<LoteUpdates> lotesUpdates = (await prisma.loteUpdates.findMany(
-            where: LoteUpdatesWhereInput(
-                lote: PrismaUnion.$2(
-                    LoteWhereInput(id: PrismaUnion.$2(loteToDelete.id!)))),
-            include: LoteUpdatesInclude(lote: PrismaUnion.$1(true))))
-        .toList();
+    // Apagar ShoppingLists do lote
+    await prisma.shoppingList.deleteMany(
+      where: ShoppingListWhereInput(
+        lote: PrismaUnion.$2(
+          LoteWhereInput(
+            id: PrismaUnion.$2(loteToDelete.id!),
+          ),
+        ),
+      ),
+    );
 
-    for (var upd in lotesUpdates) {
-      await prisma.loteUpdates
-          .delete(where: LoteUpdatesWhereUniqueInput(id: upd.id!));
-    }
+    // Apagar todas as movimentações do lote
+    await prisma.loteUpdates.deleteMany(
+      where: LoteUpdatesWhereInput(
+        lote: PrismaUnion.$2(
+          LoteWhereInput(
+            id: PrismaUnion.$2(loteToDelete.id!),
+          ),
+        ),
+      ),
+    );
 
-    await prisma.product.update(
-        data: PrismaUnion.$2(ProductUncheckedUpdateInput(
-            lotes: LoteUncheckedUpdateManyWithoutProductNestedInput(
-                delete: PrismaUnion.$1(
-                    LoteWhereUniqueInput(id: loteToDelete.id!))))),
-        where: ProductWhereUniqueInput(id: loteToDelete.product!.id));
+    // Apagar lote em si
+    await prisma.lote.delete(where: LoteWhereUniqueInput(id: loteToDelete.id));
 
-    prisma.lote
-        .delete(where: LoteWhereUniqueInput(id: loteToDelete.id))
-        .then((_) {
-      refresh();
-    });
+    refresh();
   }
 
   @override

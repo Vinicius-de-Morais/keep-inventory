@@ -3174,6 +3174,7 @@ class PrismaClient extends _i1.BasePrismaClient<PrismaClient> {
             'relationName': 'ProductToProductCategory',
             'relationFromFields': ['product_category_id'],
             'relationToFields': ['id'],
+            'relationOnDelete': 'Cascade',
             'isGenerated': false,
             'isUpdatedAt': false,
           },
@@ -3285,6 +3286,7 @@ class PrismaClient extends _i1.BasePrismaClient<PrismaClient> {
             'relationName': 'AccountToProductCategory',
             'relationFromFields': ['account_id'],
             'relationToFields': ['id'],
+            'relationOnDelete': 'Cascade',
             'isGenerated': false,
             'isUpdatedAt': false,
           },
@@ -3301,6 +3303,7 @@ class PrismaClient extends _i1.BasePrismaClient<PrismaClient> {
             'relationName': 'ParentCategory',
             'relationFromFields': ['parent_category'],
             'relationToFields': ['id'],
+            'relationOnDelete': 'SetNull',
             'isGenerated': false,
             'isUpdatedAt': false,
           },
@@ -3458,6 +3461,7 @@ class PrismaClient extends _i1.BasePrismaClient<PrismaClient> {
             'relationName': 'LoteToProduct',
             'relationFromFields': ['product_id'],
             'relationToFields': ['id'],
+            'relationOnDelete': 'Cascade',
             'isGenerated': false,
             'isUpdatedAt': false,
           },
@@ -3576,6 +3580,7 @@ class PrismaClient extends _i1.BasePrismaClient<PrismaClient> {
             'relationName': 'LoteToLoteUpdates',
             'relationFromFields': ['stock_id'],
             'relationToFields': ['id'],
+            'relationOnDelete': 'Cascade',
             'isGenerated': false,
             'isUpdatedAt': false,
           },
@@ -3628,6 +3633,7 @@ class PrismaClient extends _i1.BasePrismaClient<PrismaClient> {
             'relationName': 'LoteToShoppingList',
             'relationFromFields': ['stock_id'],
             'relationToFields': ['id'],
+            'relationOnDelete': 'Cascade',
             'isGenerated': false,
             'isUpdatedAt': false,
           },
@@ -3813,7 +3819,7 @@ class PrismaClient extends _i1.BasePrismaClient<PrismaClient> {
   @override
   get $engine => _engine ??= _i5.LibraryEngine(
         schema:
-            'generator client {\n  provider   = "dart run orm"\n  output     = "../lib/_generated_prisma_client"\n  engineType = "flutter"\n}\n\ndatasource db {\n  provider = "sqlite"\n  url      = "file:./dev.db"\n}\n\nmodel Account {\n  id          Int               @id @unique @default(autoincrement())\n  name        String\n  user_name   String\n  description String?\n  products    Product[]\n  categories  ProductCategory[]\n}\n\nmodel Product {\n  id                  Int              @id @unique @default(autoincrement())\n  account_id          Int\n  description         String?\n  product_category_id Int?\n  name                String\n  barcode_content     String?\n  account             Account          @relation(fields: [account_id], references: [id])\n  category            ProductCategory? @relation(fields: [product_category_id], references: [id])\n  lotes               Lote[]\n\n  @@index([account_id])\n  @@index([product_category_id])\n}\n\nmodel ProductCategory {\n  id              Int               @id @unique @default(autoincrement())\n  parent_category Int?\n  account_id      Int\n  name            String?\n  description     String?\n  account         Account           @relation(fields: [account_id], references: [id])\n  parent          ProductCategory?  @relation("ParentCategory", fields: [parent_category], references: [id])\n  children        ProductCategory[] @relation("ParentCategory")\n  products        Product[]\n\n  @@index([account_id])\n  @@index([parent_category])\n}\n\nmodel Lote {\n  id               Int           @id @unique @default(autoincrement())\n  product_id       Int\n  quantity_minimum Int\n  quantity_current Int\n  expiration_date  DateTime?\n  creation_date    DateTime      @default(now())\n  purchase_price   Float?\n  product          Product       @relation(fields: [product_id], references: [id])\n  lote_updates     LoteUpdates[]\n  shopping_list    ShoppingList?\n\n  @@index([product_id])\n}\n\nmodel LoteUpdates {\n  id             Int      @id @unique @default(autoincrement())\n  stock_id       Int\n  update_time    DateTime @default(now())\n  quantity_delta Int\n  lote           Lote     @relation(fields: [stock_id], references: [id])\n\n  @@index([stock_id])\n}\n\nmodel ShoppingList {\n  stock_id Int  @id @unique\n  count    Int?\n  lote     Lote @relation(fields: [stock_id], references: [id])\n}\n',
+            'generator client {\n  provider   = "dart run orm"\n  output     = "../lib/_generated_prisma_client"\n  engineType = "flutter"\n}\n\ndatasource db {\n  provider = "sqlite"\n  url      = "file:./dev.db"\n}\n\nmodel Account {\n  id          Int               @id @unique @default(autoincrement())\n  name        String\n  user_name   String\n  description String?\n  products    Product[]\n  categories  ProductCategory[]\n}\n\nmodel Product {\n  id                  Int              @id @unique @default(autoincrement())\n  account_id          Int\n  description         String?\n  product_category_id Int?\n  name                String\n  barcode_content     String?\n  account             Account          @relation(fields: [account_id], references: [id])\n  category            ProductCategory? @relation(fields: [product_category_id], references: [id], onDelete: Cascade)\n  lotes               Lote[]\n\n  @@index([account_id])\n  @@index([product_category_id])\n}\n\nmodel ProductCategory {\n  id              Int               @id @unique @default(autoincrement())\n  parent_category Int?\n  account_id      Int\n  name            String?\n  description     String?\n  account         Account           @relation(fields: [account_id], references: [id], onDelete: Cascade)\n  parent          ProductCategory?  @relation("ParentCategory", fields: [parent_category], references: [id], onDelete: SetNull)\n  children        ProductCategory[] @relation("ParentCategory")\n  products        Product[]\n\n  @@index([account_id])\n  @@index([parent_category])\n}\n\nmodel Lote {\n  id               Int           @id @unique @default(autoincrement())\n  product_id       Int\n  quantity_minimum Int\n  quantity_current Int\n  expiration_date  DateTime?\n  creation_date    DateTime      @default(now())\n  purchase_price   Float?\n  product          Product       @relation(fields: [product_id], references: [id], onDelete: Cascade)\n  lote_updates     LoteUpdates[]\n  shopping_list    ShoppingList?\n\n  @@index([product_id])\n}\n\nmodel LoteUpdates {\n  id             Int      @id @unique @default(autoincrement())\n  stock_id       Int\n  update_time    DateTime @default(now())\n  quantity_delta Int\n  lote           Lote     @relation(fields: [stock_id], references: [id], onDelete: Cascade)\n\n  @@index([stock_id])\n}\n\nmodel ShoppingList {\n  stock_id Int  @id @unique\n  count    Int?\n  lote     Lote @relation(fields: [stock_id], references: [id], onDelete: Cascade)\n}\n',
         datasources: const {
           'db': _i1.Datasource(
             _i1.DatasourceType.url,
