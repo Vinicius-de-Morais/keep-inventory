@@ -48,24 +48,11 @@ class CategoryListViewState extends State<CategoryListView> {
       appBar: AppBar(
         automaticallyImplyLeading: true,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Lista de Categorias'),
+        title: const Text('Categorias'),
       ),
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  const TextField(
-                    decoration: InputDecoration(
-                      border: UnderlineInputBorder(),
-                      labelText: 'Pesquisar...',
-                    ),
-                  ),
-                ].withSpaceBetween(height: 8),
-              ),
-            ),
             Expanded(
               child: ListView.builder(
                 scrollDirection: Axis.vertical,

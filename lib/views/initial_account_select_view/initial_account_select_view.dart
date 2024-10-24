@@ -4,6 +4,7 @@ import 'package:keep_inventory/GLOBAL.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/services/account_controller.dart';
 import 'package:keep_inventory/utils/list_space_gap.dart';
+import 'package:keep_inventory/views/after_account_menu.dart';
 import 'package:keep_inventory/views/initial_account_select_view/account_button.dart';
 import 'package:keep_inventory/views/product_list_view/product_list_view.dart';
 import 'package:keep_inventory/widgets/account_register_form.dart';
@@ -74,7 +75,7 @@ class _InitialAccountSelectViewState extends State<InitialAccountSelectView> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => ProductListView(),
+                                builder: (context) => AfterAccountMenu(),
                               ),
                             );
                           },

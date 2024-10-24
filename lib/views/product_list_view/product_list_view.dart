@@ -155,7 +155,7 @@ class ProductListViewState extends State<ProductListView> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Lista de Produtos'),
+        title: const Text('Produtos'),
       ),
       body: SafeArea(
         child: Column(

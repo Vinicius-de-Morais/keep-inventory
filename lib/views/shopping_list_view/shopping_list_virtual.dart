@@ -37,76 +37,73 @@ class ShoppingListInspectViewState extends State<ShoppingListInspectView> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text('Lista de Compras'),
-        ),
-        body: SafeArea(
-          child: Column(
-            children: [
-              Card(
-                color: ThemeData().colorScheme.surfaceContainer,
-                margin: EdgeInsets.all(8),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(left: 16.0),
-                        child: Row(
-                          children: [
-                            Expanded(child: Text("Produtos em falta")),
-                          ],
-                        ),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Lista de Compras'),
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Card(
+              color: ThemeData().colorScheme.surfaceContainer,
+              margin: EdgeInsets.all(8),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(left: 16.0),
+                      child: Row(
+                        children: [
+                          Expanded(child: Text("Produtos em falta")),
+                        ],
                       ),
-                      ListView.builder(
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        itemCount: LoteLists.length,
-                        cacheExtent: 0,
-                        itemBuilder: (context, index) {
-                          Lote lote = LoteLists[index];
+                    ),
+                    ListView.builder(
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemCount: LoteLists.length,
+                      cacheExtent: 0,
+                      itemBuilder: (context, index) {
+                        Lote lote = LoteLists[index];
 
-                          var buyAt = lote.creationDate?.toLocal();
-                          var expirationAt = lote.expirationDate?.toLocal();
-                          var val = expirationAt != null
-                              ? "${expirationAt.day}/${expirationAt.month}/${expirationAt.year}"
-                              : "Indefinido";
+                        var buyAt = lote.creationDate?.toLocal();
+                        var expirationAt = lote.expirationDate?.toLocal();
+                        var val = expirationAt != null
+                            ? "${expirationAt.day}/${expirationAt.month}/${expirationAt.year}"
+                            : "Indefinido";
 
-                          String subtitle = [
-                            "Data Compra: ${buyAt!.day}/${buyAt.month}/${buyAt.year}",
-                            "Validade: ${val}",
-                            lote.product?.name,
-                          ].join("\n");
+                        String subtitle = [
+                          "Data Compra: ${buyAt!.day}/${buyAt.month}/${buyAt.year}",
+                          "Validade: ${val}",
+                          lote.product?.name,
+                        ].join("\n");
 
-                          int qtd =
-                              lote.quantityCurrent! - lote.quantityMinimum!;
+                        int qtd = lote.quantityCurrent! - lote.quantityMinimum!;
 
-                          if (!(qtd > 4)) {
-                            String text =
-                                "Quantidade atual: ${lote.quantityCurrent}   Minimo: ${lote.quantityMinimum}";
+                        if (!(qtd > 4)) {
+                          String text =
+                              "Quantidade atual: ${lote.quantityCurrent}   Minimo: ${lote.quantityMinimum}";
 
-                            return ListTile(
-                              title: Text(text,
-                                  style: const TextStyle(
-                                    color: Colors.red,
-                                  )),
-                              subtitle: Text(subtitle),
-                            );
-                          } else {
-                            return Container();
-                          }
-                        },
-                      ),
-                    ].withSpaceBetween(height: 8),
-                  ),
+                          return ListTile(
+                            title: Text(text,
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                )),
+                            subtitle: Text(subtitle),
+                          );
+                        } else {
+                          return Container();
+                        }
+                      },
+                    ),
+                  ].withSpaceBetween(height: 8),
                 ),
               ),
-            ].withSpaceBetween(height: 8),
-          ),
+            ),
+          ].withSpaceBetween(height: 8),
         ),
       ),
     );
