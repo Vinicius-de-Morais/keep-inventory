@@ -14,12 +14,6 @@ class ProductCategoryRegisterForm extends StatefulWidget {
   final int accountId;
   ProductCategory? category;
 
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
-
-  int? parentId;
-  int? childrenId;
-
   @override
   _ProductCategoryRegisterFormState createState() =>
       _ProductCategoryRegisterFormState();
@@ -29,29 +23,30 @@ class _ProductCategoryRegisterFormState
     extends State<ProductCategoryRegisterForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  int? selectedParentId;
+  int? childrenId;
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
   final CategoryController categoryController = CategoryController();
 
   Iterable<ProductCategory> categories = [];
 
-  _ProductCategoryRegisterFormState() {
+  @override
+  void initState() {
+    super.initState();
     refresh();
   }
 
-  void refresh() {
-    prisma.productCategory
-        .findMany(
-            include: const ProductCategoryInclude(parent: PrismaUnion.$1(true)))
-        .then((cats) {
-      setState(() {
-        categories = cats.toList();
+  void refresh() async {
+    var loadedCats = await prisma.productCategory.findMany(
+        include: const ProductCategoryInclude(parent: PrismaUnion.$1(true)));
 
-        if (mounted && widget.category != null) {
-          widget.nameController.text = widget.category!.name ?? "";
-          widget.descriptionController.text =
-              widget.category!.description ?? "";
-          widget.parentId = widget.category!.parent!.id;
-        }
-      });
+    setState(() {
+      categories = loadedCats.toList();
+
+      nameController.text = widget.category?.name ?? "";
+      descriptionController.text = widget.category?.description ?? "";
+      selectedParentId = widget.category?.parent?.id;
     });
   }
 
@@ -67,7 +62,7 @@ class _ProductCategoryRegisterFormState
               hintText: 'Nome da categoria',
             ),
             validator: (value) => this.validateField(value),
-            controller: widget.nameController,
+            controller: nameController,
           ),
           FutureBuilder(
               future: prisma.productCategory
@@ -82,7 +77,9 @@ class _ProductCategoryRegisterFormState
                     ),
                     items: this.filterCategoryParent(itemdata.data!),
                     onChanged: (value) {
-                      widget.parentId = int.parse(value!);
+                      // NÃO PODE USAR SETSTATE(), SENAO O SPINNER NAO VAI ATUALIZAR
+
+                      selectedParentId = int.parse(value!);
                     },
                   );
                 }
@@ -92,7 +89,7 @@ class _ProductCategoryRegisterFormState
               hintText: 'Descrição da categoria',
             ),
             validator: (value) => validateField(value),
-            controller: widget.descriptionController,
+            controller: descriptionController,
           ),
           ElevatedButton(
             onPressed: () {
@@ -100,18 +97,18 @@ class _ProductCategoryRegisterFormState
                 if (widget.category != null) {
                   categoryController.updateCategory(
                       widget.category!.id!,
-                      widget.nameController.text,
-                      widget.descriptionController.text,
+                      nameController.text,
+                      descriptionController.text,
                       widget.accountId,
-                      widget.parentId!);
+                      selectedParentId);
 
                   Fluttertoast.showToast(msg: "Categoria atualizada");
                 } else {
                   categoryController.createCategory(
-                      widget.nameController.text,
-                      widget.descriptionController.text,
+                      nameController.text,
+                      descriptionController.text,
                       widget.accountId,
-                      widget.parentId);
+                      selectedParentId);
 
                   Fluttertoast.showToast(msg: "Categoria criada");
                 }
@@ -133,10 +130,14 @@ class _ProductCategoryRegisterFormState
 
   List<DropdownMenuItem<String>> filterCategoryParent(
       Iterable<ProductCategory> categorias) {
-    return categorias
+    var cats = categorias
         .where((element) => element.parent == null)
         .map((e) => DropdownMenuItem(
             value: e.id.toString(), child: Text(e.name ?? "N/A")))
-        .toList();
+        .toList(growable: true);
+
+    // cats.insert(0, DropdownMenuItem(value: "raiz", child: Text("[Raíz]")));
+
+    return cats;
   }
 }

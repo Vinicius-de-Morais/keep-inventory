@@ -64,7 +64,8 @@ class CategoryListViewState extends State<CategoryListView> {
 
                   String name = c.name ?? "Sem nome";
                   String desc = c.description ?? "Sem descrição";
-                  String parentName = c.parent?.name ?? "Categoria raíz";
+                  String parentName =
+                      "Parente: " + (c.parent?.name ?? "Categoria raíz");
 
                   return ListTile(
                     title: Text(name),

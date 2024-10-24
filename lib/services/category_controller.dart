@@ -39,7 +39,7 @@ class CategoryController {
   }
 
   Future<ActionClient<ProductCategory?>> updateCategory(int id, String name,
-      String description, int accountId, int parentId) async {
+      String description, int accountId, int? parentId) async {
     return prisma.productCategory.update(
         where: ProductCategoryWhereUniqueInput(id: id),
         data: PrismaUnion.$1(ProductCategoryUpdateInput(
