@@ -1,5 +1,6 @@
 import 'package:confirm_dialog/confirm_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:keep_inventory/GLOBAL.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/_generated_prisma_client/prisma.dart';
 import 'package:keep_inventory/prisma.dart';
@@ -68,6 +69,11 @@ class ShoppingListInspectViewState extends State<ShoppingListInspectView> {
                       cacheExtent: 0,
                       itemBuilder: (context, index) {
                         Lote lote = LoteLists[index];
+
+                        if (lote.product!.accountId !=
+                            GLOBAL_STATE.grupoSelecionado!.id) {
+                          return Container();
+                        }
 
                         var buyAt = lote.creationDate?.toLocal();
                         var expirationAt = lote.expirationDate?.toLocal();
