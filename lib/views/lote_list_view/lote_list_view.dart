@@ -14,6 +14,7 @@ import 'package:keep_inventory/widgets/form_render.dart';
 import 'package:keep_inventory/widgets/lote_register_form.dart';
 import 'package:keep_inventory/widgets/product_register_form.dart';
 import 'package:orm/orm.dart';
+import 'package:intl/intl.dart';
 
 enum LoteFilter { All, OnlyEmptyLotes }
 
@@ -22,7 +23,7 @@ enum LoteOrdering { ByLoteCount, ByPurchasePrice, ByExpirationDate }
 class LoteListView extends StatefulWidget {
   const LoteListView({super.key, required this.productFilter});
 
-  final Product? productFilter;
+  final Product productFilter;
 
   @override
   LoteListViewState createState() => LoteListViewState();
@@ -256,7 +257,7 @@ class LoteListViewState extends State<LoteListView> {
                   String productName =
                       l.product?.name ?? "Produto desconhecido";
                   String? precoCompra = l.purchasePrice != null
-                      ? "R\$ ${l.purchasePrice!.toStringAsFixed(2)}"
+                      ? "Preço de venda: R\$ ${l.purchasePrice!.toStringAsFixed(2)}"
                       : null;
                   int qtdMin = l.quantityMinimum ?? 0;
                   int qtdCurr = loteQuantities[l.id!] ?? 0;
@@ -264,12 +265,13 @@ class LoteListViewState extends State<LoteListView> {
 
                   String subtitle = [
                     if (precoCompra != null) precoCompra,
-                    "Quantidade: $qtdCurr/$qtdMin un.",
-                    if (expDate != null) expDate.toIso8601String(),
+                    "Quantidade atual: $qtdCurr de $qtdMin un.",
+                    if (expDate != null)
+                      "Expira em ${DateFormat('dd/MM/yyyy').format(expDate)}",
                   ].join("\n");
 
                   return ListTile(
-                    title: Text(productName),
+                    title: Text("Lote #" + l.id!.toString()),
                     subtitle: Text(subtitle),
                     trailing: MenuAnchor(
                       menuChildren: <Widget>[
@@ -303,7 +305,9 @@ class LoteListViewState extends State<LoteListView> {
                                         form: LoteForm(
                                           accountId: GLOBAL_STATE
                                               .grupoSelecionado!.id!,
-                                          lote: l,
+                                          previousLoteData: l,
+                                          relatedToProduct:
+                                              widget.productFilter,
                                         ),
                                         title: "Editar Lote")),
                               ).then((_) {
@@ -357,6 +361,8 @@ class LoteListViewState extends State<LoteListView> {
               builder: (context) => FormRender(
                 form: LoteForm(
                   accountId: GLOBAL_STATE.grupoSelecionado!.id!,
+                  relatedToProduct: widget.productFilter,
+                  previousLoteData: null,
                 ),
                 title: "Cadastrar Lote",
               ),

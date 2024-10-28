@@ -7,20 +7,19 @@ import 'package:keep_inventory/prisma.dart';
 import 'package:keep_inventory/services/lote_controller.dart';
 
 class LoteForm extends StatefulWidget {
-  LoteForm({super.key, required this.accountId, this.lote});
+  LoteForm(
+      {super.key,
+      required this.accountId,
+      required this.relatedToProduct,
+      this.previousLoteData});
 
   final int accountId;
-  Lote? lote;
 
-  DateTime? expirationDate;
+  /// A qual produto este lote pertence? Usado para não ter que mostrar uma seleção de produtos ao usuário.
+  final Product relatedToProduct;
 
-  int? productId;
-
-  final TextEditingController quantityMinimumController =
-      TextEditingController();
-  final TextEditingController quantityCurrentController =
-      TextEditingController();
-  final TextEditingController purchasePriceController = TextEditingController();
+  /// Dados antigos do lote. Caso seja nulo, significa que está criando um novo lote neste formulário.
+  Lote? previousLoteData;
 
   @override
   _LoteFormState createState() => _LoteFormState();
@@ -30,30 +29,35 @@ class _LoteFormState extends State<LoteForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final LoteController loteController = LoteController();
+  final TextEditingController quantityMinimumController =
+      TextEditingController();
+  final TextEditingController purchasePriceController = TextEditingController();
 
-  _LoteFormState() {
-    if (mounted && widget.lote != null) {
-      widget.quantityMinimumController.text =
-          widget.lote!.quantityMinimum.toString();
-      widget.quantityCurrentController.text =
-          widget.lote!.quantityCurrent.toString();
-      widget.purchasePriceController.text =
-          widget.lote!.purchasePrice.toString();
-      widget.expirationDate = widget.lote!.expirationDate;
-      widget.productId = widget.lote!.product!.id;
+  DateTime? selectedExpirationDate;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.previousLoteData != null) {
+      quantityMinimumController.text =
+          widget.previousLoteData!.quantityMinimum.toString();
+      purchasePriceController.text =
+          widget.previousLoteData!.purchasePrice.toString();
+      selectedExpirationDate = widget.previousLoteData!.expirationDate;
     }
   }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: widget.expirationDate ?? DateTime.now(),
+      initialDate: selectedExpirationDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (pickedDate != null && pickedDate != widget.expirationDate) {
+    if (pickedDate != null && pickedDate != selectedExpirationDate) {
       setState(() {
-        widget.expirationDate = pickedDate;
+        selectedExpirationDate = pickedDate;
       });
     }
   }
@@ -67,40 +71,16 @@ class _LoteFormState extends State<LoteForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          FutureBuilder(
-              future: prisma.product.findMany(),
-              builder: (context, itemdata) {
-                if (itemdata.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else {
-                  return DropdownButtonFormField(
-                    decoration: const InputDecoration(
-                      hintText: "Selecione o produto",
-                    ),
-                    items: this.filterProduct(itemdata.data!),
-                    onChanged: (value) {
-                      widget.productId = int.parse(value!);
-                    },
-                  );
-                }
-              }),
           TextFormField(
             decoration: const InputDecoration(
               hintText: 'Quantidade minima',
             ),
             validator: (value) => this.validateField(value),
-            controller: widget.quantityMinimumController,
+            controller: quantityMinimumController,
           ),
           TextFormField(
             decoration: const InputDecoration(
-              hintText: 'Quantidade atual',
-            ),
-            validator: (value) => this.validateField(value),
-            controller: widget.quantityCurrentController,
-          ),
-          TextFormField(
-            decoration: const InputDecoration(
-              hintText: 'Valor do lote',
+              hintText: 'Preço de venda do lote',
             ),
             validator: (value) {
               if (double.tryParse(value ?? "") == null) {
@@ -109,7 +89,7 @@ class _LoteFormState extends State<LoteForm> {
 
               return this.validateField(value);
             },
-            controller: widget.purchasePriceController,
+            controller: purchasePriceController,
           ),
           TextFormField(
             decoration: const InputDecoration(
@@ -118,8 +98,8 @@ class _LoteFormState extends State<LoteForm> {
             readOnly: true,
             onTap: () => _selectDate(context),
             controller: TextEditingController(
-              text: widget.expirationDate != null
-                  ? "${widget.expirationDate!.toLocal()}".split(' ')[0]
+              text: selectedExpirationDate != null
+                  ? "${selectedExpirationDate!.toLocal()}".split(' ')[0]
                   : '',
             ),
             validator: (value) {
@@ -132,23 +112,23 @@ class _LoteFormState extends State<LoteForm> {
           ElevatedButton(
             onPressed: () {
               if (_formKey.currentState!.validate()) {
-                if (widget.lote != null) {
+                if (widget.previousLoteData != null) {
                   loteController.updateLote(
-                      widget.lote!.id!,
-                      int.parse(widget.quantityMinimumController.text),
-                      int.parse(widget.quantityCurrentController.text),
-                      double.parse(widget.purchasePriceController.text),
-                      widget.lote!.productId!,
-                      widget.expirationDate!);
+                      widget.previousLoteData!.id!,
+                      int.parse(quantityMinimumController.text),
+                      0,
+                      double.parse(purchasePriceController.text),
+                      widget.previousLoteData!.productId!,
+                      selectedExpirationDate!);
 
                   Fluttertoast.showToast(msg: "Lote atualizado");
                 } else {
                   loteController.createLote(
-                      int.parse(widget.quantityMinimumController.text),
-                      int.parse(widget.quantityCurrentController.text),
-                      double.parse(widget.purchasePriceController.text),
-                      widget.expirationDate!,
-                      widget.productId!);
+                      int.parse(quantityMinimumController.text),
+                      0,
+                      double.parse(purchasePriceController.text),
+                      selectedExpirationDate!,
+                      widget.relatedToProduct.id!);
 
                   Fluttertoast.showToast(msg: "Lote criado");
                 }
