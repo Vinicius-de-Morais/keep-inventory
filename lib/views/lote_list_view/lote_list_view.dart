@@ -17,7 +17,7 @@ import 'package:orm/orm.dart';
 
 enum LoteFilter { All, OnlyEmptyLotes }
 
-enum LoteOrdering { Alphabetical, ByLoteCount }
+enum LoteOrdering { ByLoteCount, ByPurchasePrice, ByExpirationDate }
 
 class LoteListView extends StatefulWidget {
   const LoteListView({super.key, required this.productFilter});
@@ -34,20 +34,23 @@ class LoteListViewState extends State<LoteListView> {
   LoteController loteController = LoteController();
 
   LoteFilter currentFilter = LoteFilter.All;
-  LoteOrdering currentSort = LoteOrdering.Alphabetical;
+  LoteOrdering currentSort = LoteOrdering.ByLoteCount;
 
-  LoteListViewState() {
+  @override
+  void initState() {
+    super.initState();
     refresh();
   }
 
   void refresh() async {
-    Iterable<Lote> allLotes = await prisma.lote.findMany(
+    List<Lote> allLotes = (await prisma.lote.findMany(
       include: const LoteInclude(
         product: PrismaUnion.$1(true),
         loteUpdates: PrismaUnion.$1(true),
         shoppingList: PrismaUnion.$1(true),
       ),
-    );
+    ))
+        .toList();
 
     loteQuantities.clear();
     for (var lote in allLotes) {
@@ -75,6 +78,26 @@ class LoteListViewState extends State<LoteListView> {
       // filtro de estoque desconhecido
       return true;
     });
+
+    if (currentSort == LoteOrdering.ByLoteCount) {
+      allLotes.sort((a, b) {
+        var stockA = loteQuantities[a.id!] ?? 0;
+        var stockB = loteQuantities[b.id!] ?? 0;
+        return stockB - stockA;
+      });
+    } else if (currentSort == LoteOrdering.ByPurchasePrice) {
+      allLotes.sort((a, b) {
+        var stockAPrice = a.purchasePrice ?? 0.0;
+        var stockBPrice = b.purchasePrice ?? 0.0;
+        return ((stockBPrice - stockAPrice) * 100000).round();
+      });
+    } else if (currentSort == LoteOrdering.ByExpirationDate) {
+      allLotes.sort((a, b) {
+        var stockADate = a.expirationDate ?? DateTime.now();
+        var stockBDate = b.expirationDate ?? DateTime.now();
+        return stockADate.compareTo(stockBDate);
+      });
+    }
 
     setState(() {
       lotes = allLotes.toList();
@@ -125,12 +148,6 @@ class LoteListViewState extends State<LoteListView> {
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: [
-                  const TextField(
-                    decoration: InputDecoration(
-                      border: UnderlineInputBorder(),
-                      labelText: 'Pesquisar...',
-                    ),
-                  ),
                   Row(
                     children: [
                       MenuAnchor(
@@ -192,10 +209,34 @@ class LoteListViewState extends State<LoteListView> {
                                 ],
                               ));
                         },
-                        menuChildren: const <Widget>[
-                          MenuItemButton(child: Text("Alfabética")),
+                        menuChildren: <Widget>[
                           MenuItemButton(
-                              child: Text("Por quantidade de estoque")),
+                            child: const Text("Por quantidade de estoque"),
+                            onPressed: () {
+                              setState(() {
+                                currentSort = LoteOrdering.ByLoteCount;
+                                refresh();
+                              });
+                            },
+                          ),
+                          MenuItemButton(
+                            child: const Text("Por preço"),
+                            onPressed: () {
+                              setState(() {
+                                currentSort = LoteOrdering.ByPurchasePrice;
+                                refresh();
+                              });
+                            },
+                          ),
+                          MenuItemButton(
+                            child: const Text("Por data de expiração"),
+                            onPressed: () {
+                              setState(() {
+                                currentSort = LoteOrdering.ByExpirationDate;
+                                refresh();
+                              });
+                            },
+                          ),
                         ],
                       ),
                     ],
