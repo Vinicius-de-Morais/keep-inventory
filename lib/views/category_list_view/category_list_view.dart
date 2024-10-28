@@ -31,7 +31,9 @@ class CategoryListViewState extends State<CategoryListView> {
             include: const ProductCategoryInclude(parent: PrismaUnion.$1(true)))
         .then((cats) {
       setState(() {
-        categories = cats.toList();
+        categories = cats
+            .where((cat) => cat.accountId == GLOBAL_STATE.grupoSelecionado?.id)
+            .toList();
       });
     });
   }

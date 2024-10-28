@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:keep_inventory/GLOBAL.dart';
 import 'package:keep_inventory/_generated_prisma_client/model.dart';
 import 'package:keep_inventory/prisma.dart';
 import 'package:keep_inventory/services/lote_controller.dart';
@@ -171,6 +172,8 @@ class _LoteFormState extends State<LoteForm> {
       Iterable<ProductCategory> categorias) {
     return categorias
         .where((element) => element.parent == null)
+        .where(
+            (element) => element.accountId == GLOBAL_STATE.grupoSelecionado?.id)
         .map((e) => DropdownMenuItem(
             value: e.id.toString(), child: Text(e.name ?? "N/A")))
         .toList();
@@ -178,6 +181,8 @@ class _LoteFormState extends State<LoteForm> {
 
   List<DropdownMenuItem<String>> filterProduct(Iterable<Product> produtos) {
     return produtos
+        .where(
+            (element) => element.accountId == GLOBAL_STATE.grupoSelecionado?.id)
         .map((e) => DropdownMenuItem(
             value: e.id.toString(), child: Text(e.name ?? "N/A")))
         .toList();
