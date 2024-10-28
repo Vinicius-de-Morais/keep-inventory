@@ -38,7 +38,7 @@ class ProductListViewState extends State<ProductListView> {
   }
 
   void refresh() async {
-    Iterable<Product> loadedProducts = await prisma.product.findMany(
+    List<Product> loadedProducts = (await prisma.product.findMany(
       include: const ProductInclude(
         account: PrismaUnion.$1(true),
         category: PrismaUnion.$1(true),
@@ -46,29 +46,44 @@ class ProductListViewState extends State<ProductListView> {
       ),
       where: ProductWhereInput(
           accountId: PrismaUnion.$2(GLOBAL_STATE.grupoSelecionado?.id ?? 1)),
-    );
+    ))
+        .toList();
+
+    // Estima a quantidade total de unidades para o produto através da soma da contagem de cada lote.
+    Map<int, int> totalStockCountForProduct = {};
+
+    for (var produto in loadedProducts) {
+      var lotesOfProduct = await prisma.lote.findMany(
+          where: LoteWhereInput(productId: PrismaUnion.$2(produto.id!)));
+
+      var produtoStock = 0;
+      for (var lote in lotesOfProduct) {
+        produtoStock += await calcStockCountFromMovimentations(lote.id!);
+      }
+      totalStockCountForProduct[produto.id!] = produtoStock;
+    }
 
     loadedProducts = await asyncListFilter(loadedProducts, (test) async {
       if (currentFilter == ProductFilter.All) return true;
 
-      // Busca O(n²) para dar uma emoção
       if (currentFilter == ProductFilter.OnlyEmptyStocks) {
-        var lotesOfProduct = await prisma.lote.findMany(
-            where: LoteWhereInput(productId: PrismaUnion.$2(test.id!)));
-
-        for (var lote in lotesOfProduct) {
-          if (await calcStockCountFromMovimentations(lote.id!) != 0) {
-            // estoque não-vazio, não incluir na listagem
-            return false;
-          }
-        }
-
-        return true;
+        var stock = totalStockCountForProduct[test.id!] ?? 0;
+        return stock == 0;
       }
 
       // filtro de estoque desconhecido
       return true;
     });
+
+    if (currentSort == ProductOrdering.Alphabetical) {
+      loadedProducts.sort((a, b) => (a.name ?? "").compareTo(b.name ?? ""));
+    } else if (currentSort == ProductOrdering.ByStockCount) {
+      loadedProducts.sort((a, b) {
+        var stockA = totalStockCountForProduct[a.id!] ?? 0;
+        var stockB = totalStockCountForProduct[b.id!] ?? 0;
+        return stockB - stockA;
+      });
+    }
 
     setState(() {
       products = loadedProducts.toList();
@@ -164,12 +179,6 @@ class ProductListViewState extends State<ProductListView> {
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: [
-                  const TextField(
-                    decoration: InputDecoration(
-                      border: UnderlineInputBorder(),
-                      labelText: 'Pesquisar...',
-                    ),
-                  ),
                   Row(
                     children: [
                       MenuAnchor(
@@ -232,10 +241,23 @@ class ProductListViewState extends State<ProductListView> {
                                 ],
                               ));
                         },
-                        menuChildren: const <Widget>[
-                          MenuItemButton(child: Text("Alfabética")),
+                        menuChildren: <Widget>[
                           MenuItemButton(
-                              child: Text("Por quantidade de estoque")),
+                              child: const Text("Alfabética"),
+                              onPressed: () {
+                                setState(() {
+                                  currentSort = ProductOrdering.Alphabetical;
+                                  refresh();
+                                });
+                              }),
+                          MenuItemButton(
+                              child: const Text("Por quantidade de estoque"),
+                              onPressed: () {
+                                setState(() {
+                                  currentSort = ProductOrdering.ByStockCount;
+                                  refresh();
+                                });
+                              }),
                         ],
                       ),
                     ],
